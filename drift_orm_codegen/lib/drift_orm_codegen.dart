@@ -1,8 +1,7 @@
-/// Support for doing something awesome.
+/// Code generation for drift_orm annotations.
 ///
-/// More dartdocs go here.
+/// This library provides generators for drift_orm annotations.
 library;
 
 export 'src/drift_orm_codegen_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'builder.dart';

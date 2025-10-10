@@ -1,0 +1,14 @@
+targets:
+  $default:
+    builders:
+      drift_orm_codegen:
+        enabled: true
+
+builders:
+  drift_orm_codegen:
+    import: "package:drift_orm_codegen/builder.dart"
+    builder_factories: ["driftOrmBuilder"]
+    build_extensions: { ".dart": [".drift_orm.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen:combining_builder"]

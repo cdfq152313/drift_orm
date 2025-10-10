@@ -1,39 +1,82 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# drift_orm_codegen
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A code generation package for drift_orm annotations. This package reads `drift_orm` annotations and generates helpful extension methods.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- **@GenerateHelloWorld**: Generates greeting methods for annotated classes
+- Customizable greeting names
+- Automatic code generation using build_runner
+- Clean, formatted output using dart_style
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add the following dependencies to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  drift_orm: ^1.0.0
+
+dev_dependencies:
+  build_runner: ^2.4.7
+  drift_orm_codegen: ^1.0.0
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+1. Import the drift_orm package and add the part directive:
 
 ```dart
-const like = 'sample';
+import 'package:drift_orm/drift_orm.dart';
+
+part 'your_file.drift_orm.g.dart';
 ```
+
+2. Annotate your classes with `@GenerateHelloWorld`:
+
+```dart
+@GenerateHelloWorld(name: 'Developer')
+class MyService {
+  void doSomething() {
+    print('Doing something...');
+  }
+}
+
+@GenerateHelloWorld() // Uses default 'World'
+class AnotherService {
+  // Your code here
+}
+```
+
+3. Run code generation:
+
+```bash
+dart run build_runner build
+```
+
+4. Use the generated methods:
+
+```dart
+void main() {
+  final service = MyService();
+  service.printHello(); // Prints: Hello, Developer! Generated for MyService
+  
+  String greeting = service.sayHello(); // Returns greeting string
+  print(greeting);
+}
+```
+
+## Example
+
+See the [example](example/drift_orm_codegen_example.dart) for a complete demonstration.
+
+## Generated Methods
+
+For each annotated class, the following extension methods are generated:
+
+- `sayHello()`: Returns a greeting string
+- `printHello()`: Prints the greeting to console
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+This package is part of the drift_orm ecosystem and demonstrates how to create custom code generators using Dart's build system.

@@ -1,0 +1,6 @@
+#!/bin/zsh
+echo '======================= drift_orm ======================='
+cd drift_orm && fvm dart pub get
+cd ..
+echo '======================= drift_orm_codegen ======================='
+cd drift_orm_codegen && fvm dart pub get
