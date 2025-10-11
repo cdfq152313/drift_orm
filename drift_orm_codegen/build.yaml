@@ -8,7 +8,25 @@ builders:
   drift_orm_codegen:
     import: "package:drift_orm_codegen/builder.dart"
     builder_factories: ["driftOrmBuilder"]
-    build_extensions: { ".dart": [".drift_orm.g.part"] }
+    build_extensions: { ".dart": [".drift_orm.g.dart"] }
+    auto_apply: dependents
+    build_to: source
+
+  # copy paste from drift_dev
+  drift_dev:
+    import: "package:drift_dev/integrations/build.dart"
+    builder_factories: ["discover", "analyzer", "driftBuilder"]
+    build_extensions:
+      ".dart":
+        - ".drift.g.part"
+        - ".dart.drift_module.json"
+        - ".dart.types.temp.dart"
+        - ".dart.drift_elements.json"
+      ".drift":
+        - ".drift.drift_module.json"
+        - ".drift.types.temp.dart"
+        - ".drift.drift_elements.json"
     auto_apply: dependents
     build_to: cache
-    applies_builders: ["source_gen:combining_builder"]
+    required_inputs: [".drift_prep.json", ".drift_orm.g.dart"]
+    applies_builders: ["source_gen:combining_builder", ":preparing_builder"]

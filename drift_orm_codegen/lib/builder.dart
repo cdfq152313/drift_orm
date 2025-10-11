@@ -6,6 +6,8 @@ import 'src/drift_orm_codegen_base.dart';
 
 /// Creates the builder for drift_orm code generation
 Builder driftOrmBuilder(BuilderOptions options) {
-  return SharedPartBuilder(
-      [HelloWorldGenerator(), EntityGenerator()], 'drift_orm');
+  return PartBuilder(
+    [HelloWorldGenerator(), EntityGenerator()],
+    '.drift_orm.g.dart',
+  );
 }
