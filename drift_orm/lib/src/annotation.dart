@@ -1,3 +1,6 @@
+import 'package:meta/meta_meta.dart';
+
+@Target({TargetKind.classType})
 class Entity {
   const Entity();
 }
@@ -13,6 +16,7 @@ abstract class EntityColumnBase {
   int? get length;
 }
 
+@Target({TargetKind.field})
 class EntityColumn implements EntityColumnBase {
   /// Name of the column in database
   final String? name;
@@ -37,6 +41,7 @@ class EntityColumn implements EntityColumnBase {
 }
 
 /// Annotation to declare a model property as primary key in database table
+@Target({TargetKind.field})
 class EntityPrimaryKey implements EntityColumnBase {
   /// Name of the column in database
   final String? name;
@@ -52,6 +57,7 @@ class EntityPrimaryKey implements EntityColumnBase {
 
 abstract class ForeignBase implements EntityColumnBase {}
 
+@Target({TargetKind.field})
 class EntityToOne implements ForeignBase {
   /// Name of the column in database
   final String? name;
