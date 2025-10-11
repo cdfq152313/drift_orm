@@ -21,6 +21,16 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 }
 
+
+
+@Entity()
+class Event {
+  @EntityPrimaryKey()
+  String id;
+
+  Event({required this.id});
+}
+
 @GenerateHelloWorld(name: 'Dart Developer')
 class MyService {
   void doSomething() {

@@ -453,3 +453,14 @@ extension AnotherServiceHelloWorldExtension on AnotherService {
     print(sayHello());
   }
 }
+
+// **************************************************************************
+// EntityGenerator
+// **************************************************************************
+
+class TodoItem2s extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text().withLength(min: 6, max: 32)();
+  TextColumn get content => text().named('body')();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+}
