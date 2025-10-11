@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
 import 'package:recase/recase.dart';
@@ -62,4 +63,15 @@ class EntityParser {
   String _parseTableName(ClassElement element) {
     return "${ReCase(element.name!).snakeCase}s";
   }
+
+  // String _typeToColumnType(DartType type) {
+  //   return const {
+  //     'bool': ColumnType.boolean,
+  //     'String': ColumnType.text,
+  //     'int': ColumnType.integer,
+  //     'double': ColumnType.real,
+  //     'DateTime': ColumnType.datetime,
+  //     'Uint8List': ColumnType.blob,
+  //   }[type.name]!;
+  // }
 }

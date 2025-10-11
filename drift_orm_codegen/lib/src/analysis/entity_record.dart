@@ -50,7 +50,7 @@ class TableRecord {
 
 class OrmInfo {
   final ClassElement classElement;
-  final String? tableName;
+  final String tableName;
   final List<PrimaryKeyRecord> primaryKeys = [];
   final List<ToOneRecord> toOneFields = [];
   final List<ColumnRecord> columnFields = [];
