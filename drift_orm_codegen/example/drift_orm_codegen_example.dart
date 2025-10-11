@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:drift_orm/drift_orm.dart';
 
-part 'drift_orm_codegen_example.g.dart';
 part 'drift_orm_codegen_example.drift_orm.g.dart';
+part 'drift_orm_codegen_example.g.dart';
 
 class TodoItems extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -22,8 +22,6 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 }
 
-
-
 @Entity()
 class Event {
   @EntityPrimaryKey()
@@ -32,34 +30,4 @@ class Event {
   Event({required this.id});
 }
 
-@GenerateHelloWorld(name: 'Dart Developer')
-class MyService {
-  void doSomething() {
-    print('MyService is doing something...');
-  }
-}
-
-@GenerateHelloWorld() // 使用預設的 'World'
-class AnotherService {
-  void performTask() {
-    print('AnotherService is performing a task...');
-  }
-}
-
-void main() {
-  print('=== Drift ORM Code Generation Example ===');
-
-  final service = MyService();
-  service.doSomething();
-  service.printHello(); // 這個方法會被生成
-
-  print('Generated greeting: ${service.sayHello()}'); // 這個方法也會被生成
-
-  print('---');
-
-  final anotherService = AnotherService();
-  anotherService.performTask();
-  anotherService.printHello(); // 這個方法會被生成
-
-  print('Generated greeting: ${anotherService.sayHello()}'); // 這個方法也會被生成
-}
+void main() {}
