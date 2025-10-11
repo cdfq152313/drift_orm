@@ -28,19 +28,11 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
   }
 
   /// Generate code based on parsed entity information
-  String generateEntityCode(OrmInfo entityInfo) {
-    // final className = entityInfo.classElement.name;
-    // final tableName = entityInfo.tableName ?? className.toLowerCase();
-
-    // final buffer = StringBuffer();
-
-    // return buffer.toString();
+  String generateEntityCode(OrmInfo orm) {
     return """
-class TodoItem2s extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get title => text().withLength(min: 6, max: 32)();
-  TextColumn get content => text().named('body')();
-  DateTimeColumn get createdAt => dateTime().nullable()();
+@UseRowClass(${orm.tableRecord.rowClassName})
+class ${orm.tableRecord.tableClassName} extends Table {
+
 }
 """;
   }
