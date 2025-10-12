@@ -133,4 +133,77 @@ void main() {
       });
     }
   });
+
+  group('ToOneRecord', () {
+    final testCases = [
+      TestCase(
+        name: 'Basic to-one relationship with int reference',
+        input: (
+          annotation: EntityToOne(isNullable: false),
+          type: 'User',
+          refColType: 'int',
+        ),
+        expected: "late final userId = integer().references(Users, #id)();",
+      ),
+      TestCase(
+        name: 'Nullable to-one relationship',
+        input: (
+          annotation: EntityToOne(isNullable: true),
+          type: 'Profile',
+          refColType: 'int',
+        ),
+        expected:
+            "late final profileId = integer().references(Profiles, #id).nullable()();",
+      ),
+      TestCase(
+        name: 'To-one with custom column name',
+        input: (
+          annotation: EntityToOne(name: 'owner_id', isNullable: false),
+          type: 'User',
+          refColType: 'int',
+        ),
+        expected:
+            "late final userId = integer().references(Users, #id).named('owner_id')();",
+      ),
+      TestCase(
+        name: 'To-one with custom reference column',
+        input: (
+          annotation: EntityToOne(refCol: 'uuid', isNullable: false),
+          type: 'Category',
+          refColType: 'String',
+        ),
+        expected:
+            "late final categoryId = text().references(Categorys, #uuid)();",
+      ),
+    ];
+
+    for (final tc in testCases) {
+      test(tc.name, () {
+        final record = ToOneRecord(
+          fieldName: tc.input.type.toLowerCase(),
+          type: tc.input.type,
+          annotation: tc.input.annotation,
+          refColType: tc.input.refColType,
+        );
+        expect(record.toRow(), equals(tc.expected));
+      });
+    }
+
+    // Test for unsupported reference column types
+    test('Unsupported reference column type throws exception', () {
+      expect(
+        () => ToOneRecord(
+          fieldName: 'user',
+          type: 'User',
+          annotation: EntityToOne(isNullable: false),
+          refColType: 'UnsupportedType',
+        ).toRow(),
+        throwsA(isA<Exception>().having(
+          (e) => e.toString(),
+          'message',
+          contains('Unsupported type: UnsupportedType'),
+        )),
+      );
+    });
+  });
 }
