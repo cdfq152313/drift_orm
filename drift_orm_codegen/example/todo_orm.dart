@@ -1,10 +1,12 @@
 import 'package:drift/drift.dart';
 import 'package:drift_orm/drift_orm.dart';
 
+import 'drift_orm_codegen_example.dart';
+
 part 'todo_orm.drift_orm.g.dart';
 
 @Entity()
-class TodoOrm {
+class TodoOrm with _$TodoOrmForeignKeyMixin, $TodoOrmsTableToColumns {
   @EntityPrimaryKey()
   String id;
 

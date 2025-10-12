@@ -132,27 +132,40 @@ class ToOneRecord extends FieldRecord {
   ToOneRecord({
     required super.fieldName,
     required super.type,
+    required this.nullable,
     required this.annotation,
     required this.refColType,
   });
   final EntityToOne annotation;
   final String refColType;
+  final bool nullable;
+
+  String get foreignIdFieldName => '${fieldName}Id';
 
   @override
   String toRow() {
-    final fieldName = '${this.fieldName}Id';
     return tmplField(
-      fieldName,
+      foreignIdFieldName,
       [
         tmplPrimitiveType(refColType),
-        tmplReference(),
+        tmplForeignKey(),
         tmplName(annotation.name),
         tmplNullable(annotation.isNullable),
       ],
     );
   }
 
-  String tmplReference() {
+  List<String> toForeignKeyField() {
+    final type = nullable ? '${this.type}?' : this.type;
+    final refColType = nullable ? '${this.refColType}?' : this.refColType;
+    final fieldName = nullable ? '${this.fieldName}?' : this.fieldName;
+    return [
+      "$type get ${this.fieldName};",
+      "$refColType get $foreignIdFieldName => $fieldName.${annotation.refCol};"
+    ];
+  }
+
+  String tmplForeignKey() {
     return ".references(${type}s, #${annotation.refCol})";
   }
 }

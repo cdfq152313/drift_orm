@@ -3,6 +3,9 @@ targets:
     builders:
       drift_orm_codegen:
         enabled: true
+      drift_dev:
+        options:
+          write_to_columns_mixins: true
 
 builders:
   drift_orm_codegen:

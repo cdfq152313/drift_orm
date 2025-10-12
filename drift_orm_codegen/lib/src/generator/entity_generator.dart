@@ -39,6 +39,9 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
 class ${orm.tableRecord.tableClassName} extends Table {
 ${orm.fields.map((e) => e.toRow()).join('\n')}
 }
+mixin _\$${orm.tableRecord.rowClassName}ForeignKeyMixin {
+  ${orm.fields.whereType<ToOneRecord>().expand((e) => e.toForeignKeyField()).join('\n')}
+}
 """;
   }
 }

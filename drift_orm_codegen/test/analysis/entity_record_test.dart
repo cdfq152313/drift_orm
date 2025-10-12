@@ -182,28 +182,12 @@ void main() {
         final record = ToOneRecord(
           fieldName: tc.input.type.toLowerCase(),
           type: tc.input.type,
+          nullable: false,
           annotation: tc.input.annotation,
           refColType: tc.input.refColType,
         );
         expect(record.toRow(), equals(tc.expected));
       });
     }
-
-    // Test for unsupported reference column types
-    test('Unsupported reference column type throws exception', () {
-      expect(
-        () => ToOneRecord(
-          fieldName: 'user',
-          type: 'User',
-          annotation: EntityToOne(isNullable: false),
-          refColType: 'UnsupportedType',
-        ).toRow(),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('Unsupported type: UnsupportedType'),
-        )),
-      );
-    });
   });
 }

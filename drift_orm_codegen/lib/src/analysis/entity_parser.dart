@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_orm/drift_orm.dart';
@@ -65,6 +66,8 @@ class EntityParser {
           ToOneRecord(
             fieldName: field.name!,
             type: field.type.nonNullableType(),
+            nullable:
+                field.type.nullabilitySuffix == NullabilitySuffix.question,
             annotation: EntityToOne(
               name: reader.peek('name')?.stringValue,
               isNullable: reader.peek('isNullable')!.boolValue,
