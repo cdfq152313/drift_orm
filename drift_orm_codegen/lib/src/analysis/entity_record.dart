@@ -1,29 +1,41 @@
 import 'package:analyzer/dart/element/type.dart';
 import 'package:drift_orm/drift_orm.dart';
 
+enum DartTypeEnum {
+  bool,
+  // ignore: constant_identifier_names
+  String,
+  int,
+  double,
+  // ignore: constant_identifier_names
+  DateTime,
+  // ignore: constant_identifier_names
+  Uint8List,
+}
+
 abstract class FieldRecord {
   FieldRecord({required this.fieldName, required this.type});
   final String fieldName;
-  final DartType type;
+  final DartTypeEnum? type;
 
   String toRow();
 
-  String _dartTypeToColumn(DartType type) {
-    switch (type.getDisplayString()) {
-      case 'bool':
+  String _dartTypeToColumn(DartTypeEnum? type) {
+    switch (type) {
+      case DartTypeEnum.bool:
         return 'boolean()';
-      case 'String':
+      case DartTypeEnum.String:
         return 'text()';
-      case 'int':
+      case DartTypeEnum.int:
         return 'integer()';
-      case 'double':
+      case DartTypeEnum.double:
         return 'real()';
-      case 'DateTime':
+      case DartTypeEnum.DateTime:
         return 'datetime()';
-      case 'Uint8List':
+      case DartTypeEnum.Uint8List:
         return 'blob()';
       default:
-        throw Exception('Unsupported type: ${type.getDisplayString()}');
+        throw Exception('Unsupported type: $type');
     }
   }
 }
@@ -42,7 +54,7 @@ class PrimaryKeyRecord extends FieldRecord {
     final name = annotation.name != null ? ".named('${annotation.name}')" : '';
     final nullable = annotation.isNullable ? '.nullable()' : '';
     final auto = annotation.auto ? '.autoIncrement()' : '';
-    return 'late final $fieldName = ${_dartTypeToColumn(type)}$auto$name$nullable();';
+    return 'late final $fieldName = ${_dartTypeToColumn(type)}$name$nullable$auto();';
   }
 }
 

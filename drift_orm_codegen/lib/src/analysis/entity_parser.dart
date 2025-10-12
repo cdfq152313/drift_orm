@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
 import 'package:recase/recase.dart';
@@ -26,7 +27,7 @@ class EntityParser {
         final reader = ConstantReader(primaryKeyAnnotation);
         fields.add(PrimaryKeyRecord(
           fieldName: field.name!,
-          type: field.type,
+          type: _tryParseType(field.type),
           annotation: EntityPrimaryKey(
             name: reader.peek('name')?.stringValue,
             auto: reader.peek('auto')!.boolValue,
@@ -41,7 +42,7 @@ class EntityParser {
         fields.add(
           ColumnRecord(
             fieldName: field.name!,
-            type: field.type,
+            type: _tryParseType(field.type),
             annotation: EntityColumnRecord(
               name: reader.peek('name')?.stringValue,
               isNullable: reader.peek('isNullable')!.boolValue,
@@ -59,7 +60,7 @@ class EntityParser {
         final reader = ConstantReader(toOneAnnotation);
         fields.add(ToOneRecord(
           fieldName: field.name!,
-          type: field.type,
+          type: _tryParseType(field.type),
           annotation: EntityToOne(
             name: reader.peek('name')?.stringValue,
             isNullable: reader.peek('isNullable')!.boolValue,
@@ -84,10 +85,12 @@ class EntityParser {
       rowClassName: rowClassName,
     );
   }
-}
 
-class _Group {
-  final List<FieldElement> primaryKeys = [];
-  final List<FieldElement> columns = [];
-  final List<FieldElement> toOnes = [];
+  DartTypeEnum? _tryParseType(DartType dart) {
+    return DartTypeEnum.values
+        .where(
+          (e) => e.name == dart.getDisplayString(),
+        )
+        .firstOrNull;
+  }
 }
