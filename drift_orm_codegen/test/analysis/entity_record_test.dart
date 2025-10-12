@@ -101,6 +101,24 @@ void main() {
         ),
         expected: "late final name = text().map(const JsonConverter())();",
       ),
+      TestCase(
+        name: 'Default value - string',
+        input: (
+          annotation: EntityColumn(isNullable: false, defaultValue: "123"),
+          type: DartTypeEnum.String,
+          converter: null,
+        ),
+        expected: "late final name = text().withDefault(Constant('123'))();",
+      ),
+      TestCase(
+        name: 'Default value - primitive',
+        input: (
+          annotation: EntityColumn(isNullable: false, defaultValue: 123),
+          type: DartTypeEnum.String,
+          converter: null,
+        ),
+        expected: "late final name = text().withDefault(Constant(123))();",
+      )
     ];
 
     for (final tc in testCases) {

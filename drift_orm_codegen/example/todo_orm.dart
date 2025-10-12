@@ -11,6 +11,9 @@ class TodoOrm {
   @EntityColumn(converter: MyConverter)
   DateTime? createdAt;
 
+  @EntityColumn(defaultValue: false)
+  bool isDone = false;
+
   TodoOrm({required this.id});
 }
 

@@ -49,7 +49,7 @@ class EntityParser {
               name: reader.peek('name')?.stringValue,
               isNullable: reader.peek('isNullable')!.boolValue,
               auto: reader.peek('auto')!.boolValue,
-              defaultValue: reader.peek('defaultValue')?.stringValue,
+              defaultValue: _parseDefaultValue(reader.peek('defaultValue')),
             ),
             converterRecord:
                 _tryParseConverter(reader.peek('converter')?.typeValue),
@@ -109,5 +109,15 @@ class EntityParser {
       dbType: _tryParseType(converterType.typeArguments.last)!,
       instanceType: converterType.typeArguments.first.getDisplayString(),
     );
+  }
+
+  Object? _parseDefaultValue(ConstantReader? peek) {
+    if (peek == null || peek.isNull) return null;
+    if (peek.isInt) return peek.intValue;
+    if (peek.isDouble) return peek.doubleValue;
+    if (peek.isString) return peek.stringValue;
+    if (peek.isBool) return peek.boolValue;
+    throw Exception(
+        'Unsupported default value type: ${peek.objectValue.type?.getDisplayString()}');
   }
 }

@@ -104,6 +104,7 @@ class ColumnRecord extends FieldRecord {
         tmplName(annotation.name),
         tmplAuto(annotation.auto),
         tmplNullable(annotation.isNullable),
+        tmplDefaultValue(),
       ],
     );
   }
@@ -116,6 +117,22 @@ class ColumnRecord extends FieldRecord {
       tmplType(converterRecord!.dbType),
       '.map(const ${converterRecord!.name}())',
     ];
+  }
+
+  String tmplDefaultValue() {
+    switch (annotation.defaultValue) {
+      case null:
+        return '';
+      case String _:
+        return ".withDefault(Constant('${annotation.defaultValue}'))";
+      case int _:
+      case double _:
+      case bool _:
+        return ".withDefault(Constant(${annotation.defaultValue}))";
+      default:
+        throw Exception(
+            'Unsupported default value type: ${annotation.defaultValue.runtimeType}');
+    }
   }
 }
 

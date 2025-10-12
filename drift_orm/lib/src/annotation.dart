@@ -25,7 +25,7 @@ class EntityColumn implements EntityColumnBase {
 
   final Type? converter;
 
-  final String? defaultValue;
+  final Object? defaultValue;
 
   const EntityColumn({
     this.name,
