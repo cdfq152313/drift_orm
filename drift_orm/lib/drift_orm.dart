@@ -4,7 +4,6 @@
 library;
 
 export 'src/annotation.dart';
-export 'src/drift_orm_base.dart';
 export 'src/orm.dart';
 
 // TODO: Export any libraries intended for clients of this package.
