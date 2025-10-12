@@ -28,7 +28,7 @@ void main() {
       test(tc.name, () {
         final record = PrimaryKeyRecord(
           fieldName: 'id',
-          type: DartTypeEnum.int,
+          type: 'int',
           annotation: tc.input,
         );
         expect(record.toRow(), equals(tc.expected));
@@ -42,7 +42,7 @@ void main() {
         name: 'Basic text column',
         input: (
           annotation: EntityColumn(isNullable: false),
-          type: DartTypeEnum.String,
+          type: 'String',
           converter: null,
         ),
         expected: "late final name = text()();",
@@ -51,7 +51,7 @@ void main() {
         name: 'Custom column name',
         input: (
           annotation: EntityColumn(name: 'user_name', isNullable: false),
-          type: DartTypeEnum.String,
+          type: 'String',
           converter: null,
         ),
         expected: "late final name = text().named('user_name')();",
@@ -60,7 +60,7 @@ void main() {
         name: 'Nullable column',
         input: (
           annotation: EntityColumn(isNullable: true),
-          type: DartTypeEnum.String,
+          type: 'String',
           converter: null,
         ),
         expected: "late final name = text().nullable()();",
@@ -69,7 +69,7 @@ void main() {
         name: 'Auto increment column',
         input: (
           annotation: EntityColumn(auto: true, isNullable: false),
-          type: DartTypeEnum.int,
+          type: 'int',
           converter: null,
         ),
         expected: "late final name = integer().autoIncrement()();",
@@ -82,7 +82,7 @@ void main() {
             auto: false,
             isNullable: true,
           ),
-          type: DartTypeEnum.DateTime,
+          type: 'DateTime',
           converter: null,
         ),
         expected:
@@ -92,10 +92,10 @@ void main() {
         name: 'Column with converter',
         input: (
           annotation: EntityColumn(isNullable: false),
-          type: DartTypeEnum.String,
+          type: 'String',
           converter: ConverterRecord(
             name: 'JsonConverter',
-            dbType: DartTypeEnum.String,
+            dbType: 'String',
             instanceType: 'Map<String, dynamic>',
           ),
         ),
@@ -105,7 +105,7 @@ void main() {
         name: 'Default value - string',
         input: (
           annotation: EntityColumn(isNullable: false, defaultValue: "123"),
-          type: DartTypeEnum.String,
+          type: 'String',
           converter: null,
         ),
         expected: "late final name = text().withDefault(Constant('123'))();",
@@ -114,7 +114,7 @@ void main() {
         name: 'Default value - primitive',
         input: (
           annotation: EntityColumn(isNullable: false, defaultValue: 123),
-          type: DartTypeEnum.String,
+          type: 'String',
           converter: null,
         ),
         expected: "late final name = text().withDefault(Constant(123))();",

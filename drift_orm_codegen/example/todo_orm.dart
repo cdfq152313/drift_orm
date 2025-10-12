@@ -14,7 +14,20 @@ class TodoOrm {
   @EntityColumn(defaultValue: false)
   bool isDone = false;
 
+  @EntityToOne()
+  Extra? extraField;
+
   TodoOrm({required this.id});
+}
+
+@Entity()
+class Extra {
+  @EntityPrimaryKey()
+  int id;
+
+  @EntityColumn()
+  String? info;
+  Extra({required this.id, this.info});
 }
 
 class MyConverter extends TypeConverter<DateTime, int> {

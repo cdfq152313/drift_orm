@@ -29,7 +29,7 @@ class EntityParser {
         final reader = ConstantReader(primaryKeyAnnotation);
         fields.add(PrimaryKeyRecord(
           fieldName: field.name!,
-          type: _tryParseType(field.type),
+          type: field.type.nonNullableType(),
           annotation: EntityPrimaryKey(
             name: reader.peek('name')?.stringValue,
             auto: reader.peek('auto')!.boolValue,
@@ -44,7 +44,7 @@ class EntityParser {
         fields.add(
           ColumnRecord(
             fieldName: field.name!,
-            type: _tryParseType(field.type),
+            type: field.type.nonNullableType(),
             annotation: EntityColumn(
               name: reader.peek('name')?.stringValue,
               isNullable: reader.peek('isNullable')!.boolValue,
@@ -61,15 +61,21 @@ class EntityParser {
       final toOneAnnotation = _toOneChecker.firstAnnotationOf(field);
       if (toOneAnnotation != null) {
         final reader = ConstantReader(toOneAnnotation);
-        fields.add(ToOneRecord(
-          fieldName: field.name!,
-          type: _tryParseType(field.type),
-          annotation: EntityToOne(
-            name: reader.peek('name')?.stringValue,
-            isNullable: reader.peek('isNullable')!.boolValue,
-            refCol: reader.peek('refCol')!.stringValue,
+        fields.add(
+          ToOneRecord(
+            fieldName: field.name!,
+            type: field.type.nonNullableType(),
+            annotation: EntityToOne(
+              name: reader.peek('name')?.stringValue,
+              isNullable: reader.peek('isNullable')!.boolValue,
+              refCol: reader.peek('refCol')!.stringValue,
+            ),
+            refColType: _parseReferenceType(
+              field.type,
+              reader.peek('refCol')!.stringValue,
+            ),
           ),
-        ));
+        );
         continue;
       }
     }
@@ -89,14 +95,6 @@ class EntityParser {
     );
   }
 
-  DartTypeEnum? _tryParseType(DartType dart) {
-    return DartTypeEnum.values
-        .where(
-          (e) => e.name == dart.getDisplayString(),
-        )
-        .firstOrNull;
-  }
-
   ConverterRecord? _tryParseConverter(DartType? type) {
     if (type is! InterfaceType) {
       return null;
@@ -106,7 +104,7 @@ class EntityParser {
 
     return ConverterRecord(
       name: type.getDisplayString(),
-      dbType: _tryParseType(converterType.typeArguments.last)!,
+      dbType: converterType.typeArguments.last.getDisplayString(),
       instanceType: converterType.typeArguments.first.getDisplayString(),
     );
   }
@@ -120,4 +118,18 @@ class EntityParser {
     throw Exception(
         'Unsupported default value type: ${peek.objectValue.type?.getDisplayString()}');
   }
+
+  String _parseReferenceType(DartType type, String refCol) {
+    if (type is! InterfaceType) {
+      throw Exception('Unsupported reference type: ${type.getDisplayString()}');
+    }
+    final field = type.element.fields.firstWhere((f) => f.name == refCol);
+    return field.type.getDisplayString();
+  }
+}
+
+extension DartTypeExtension on DartType {
+  String nonNullableType() =>
+      (element?.library?.typeSystem.promoteToNonNull(this) ?? this)
+          .getDisplayString();
 }

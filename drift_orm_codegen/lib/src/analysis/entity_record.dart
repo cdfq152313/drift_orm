@@ -1,44 +1,32 @@
 import 'package:drift_orm/drift_orm.dart';
 
-enum DartTypeEnum {
-  bool,
-  // ignore: constant_identifier_names
-  String,
-  int,
-  double,
-  // ignore: constant_identifier_names
-  DateTime,
-  // ignore: constant_identifier_names
-  Uint8List,
-}
-
 abstract class FieldRecord {
   FieldRecord({required this.fieldName, required this.type});
   final String fieldName;
-  final DartTypeEnum? type;
+  final String type;
 
   String toRow();
 
-  String tmplType(DartTypeEnum? type) {
+  String tmplPrimitiveType(String type) {
     switch (type) {
-      case DartTypeEnum.bool:
+      case 'bool':
         return 'boolean()';
-      case DartTypeEnum.String:
+      case 'String':
         return 'text()';
-      case DartTypeEnum.int:
+      case 'int':
         return 'integer()';
-      case DartTypeEnum.double:
+      case 'double':
         return 'real()';
-      case DartTypeEnum.DateTime:
+      case 'DateTime':
         return 'datetime()';
-      case DartTypeEnum.Uint8List:
+      case 'Uint8List':
         return 'blob()';
       default:
         throw Exception('Unsupported type: $type');
     }
   }
 
-  String tmplField(List<String> extra) {
+  String tmplField(String fieldName, List<String> extra) {
     final extraStr = extra.isNotEmpty ? extra.join() : '';
     return 'late final $fieldName = $extraStr();';
   }
@@ -67,11 +55,14 @@ class PrimaryKeyRecord extends FieldRecord {
 
   @override
   String toRow() {
-    return tmplField([
-      tmplType(type),
-      tmplName(annotation.name),
-      tmplAuto(annotation.auto),
-    ]);
+    return tmplField(
+      fieldName,
+      [
+        tmplPrimitiveType(type),
+        tmplName(annotation.name),
+        tmplAuto(annotation.auto),
+      ],
+    );
   }
 }
 
@@ -82,7 +73,7 @@ class ConverterRecord {
     required this.instanceType,
   });
   final String name;
-  final DartTypeEnum dbType;
+  final String dbType;
   final String instanceType;
 }
 
@@ -99,6 +90,7 @@ class ColumnRecord extends FieldRecord {
   @override
   String toRow() {
     return tmplField(
+      fieldName,
       [
         ...tmplType2(),
         tmplName(annotation.name),
@@ -111,10 +103,10 @@ class ColumnRecord extends FieldRecord {
 
   List<String> tmplType2() {
     if (converterRecord == null) {
-      return [tmplType(type)];
+      return [tmplPrimitiveType(type)];
     }
     return [
-      tmplType(converterRecord!.dbType),
+      tmplPrimitiveType(converterRecord!.dbType),
       '.map(const ${converterRecord!.name}())',
     ];
   }
@@ -141,12 +133,27 @@ class ToOneRecord extends FieldRecord {
     required super.fieldName,
     required super.type,
     required this.annotation,
+    required this.refColType,
   });
   final EntityToOne annotation;
+  final String refColType;
 
   @override
   String toRow() {
-    return '// ToOne($fieldName, type: $type)';
+    final fieldName = '${this.fieldName}Id';
+    return tmplField(
+      fieldName,
+      [
+        tmplPrimitiveType(refColType),
+        tmplReference(),
+        tmplName(annotation.name),
+        tmplNullable(annotation.isNullable),
+      ],
+    );
+  }
+
+  String tmplReference() {
+    return ".references(${type}s, #${annotation.refCol})";
   }
 }
 
