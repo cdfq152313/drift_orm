@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_parser.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
@@ -9,6 +10,9 @@ import 'package:source_gen/source_gen.dart';
 
 class EntityGenerator extends GeneratorForAnnotation<Entity> {
   final EntityParser _parser = EntityParser();
+  final _dartfmt = DartFormatter(
+    languageVersion: DartFormatter.latestLanguageVersion,
+  );
 
   @override
   FutureOr<String> generateForAnnotatedElement(
@@ -24,7 +28,8 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
     }
 
     final entityInfo = _parser.parse(element, annotation);
-    return generateEntityCode(entityInfo);
+    final result = generateEntityCode(entityInfo);
+    return _dartfmt.format(result);
   }
 
   /// Generate code based on parsed entity information
@@ -32,7 +37,7 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
     return """
 @UseRowClass(${orm.tableRecord.rowClassName})
 class ${orm.tableRecord.tableClassName} extends Table {
-
+${orm.fields.map((e) => e.toRow()).join('\n')}
 }
 """;
   }

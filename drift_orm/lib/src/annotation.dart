@@ -31,13 +31,14 @@ class EntityColumn implements EntityColumnBase {
 
   final String? defaultValue;
 
-  const EntityColumn(
-      {this.name,
-      this.isNullable = true,
-      this.auto = false,
-      this.length,
-      this.converter,
-      this.defaultValue});
+  const EntityColumn({
+    this.name,
+    this.isNullable = true,
+    this.auto = false,
+    this.length,
+    this.converter,
+    this.defaultValue,
+  });
 }
 
 /// Annotation to declare a model property as primary key in database table
@@ -52,7 +53,11 @@ class EntityPrimaryKey implements EntityColumnBase {
 
   final int? length;
 
-  const EntityPrimaryKey({this.name, this.auto = false, this.length});
+  const EntityPrimaryKey({
+    this.name,
+    this.auto = false,
+    this.length,
+  });
 }
 
 abstract class ForeignBase implements EntityColumnBase {}

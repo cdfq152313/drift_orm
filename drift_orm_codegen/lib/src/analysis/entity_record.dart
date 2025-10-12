@@ -1,26 +1,69 @@
-import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
+import 'package:drift_orm/drift_orm.dart';
 
-class PrimaryKeyRecord {
-  final FieldElement field;
-  final bool autoIncrement;
+abstract class FieldRecord {
+  FieldRecord({required this.fieldName, required this.type});
+  final String fieldName;
+  final DartType type;
 
-  PrimaryKeyRecord(this.field, this.autoIncrement);
+  String toRow();
 }
 
-class ColumnRecord {
-  final FieldElement field;
-  final String? columnName;
-  final bool nullable;
+class PrimaryKeyRecord extends FieldRecord {
+  PrimaryKeyRecord({
+    required super.fieldName,
+    required super.type,
+    required this.annotation,
+  });
 
-  ColumnRecord(this.field, this.columnName, this.nullable);
+  final EntityPrimaryKey annotation;
+
+  @override
+  String toRow() {
+    return '// PrimaryKey($fieldName, type: $type, autoIncrement: ${annotation.auto})';
+  }
 }
 
-class ToOneRecord {
-  final FieldElement field;
-  final String targetType;
-  final String? joinColumn;
+class EntityColumnRecord extends EntityColumn {
+  EntityColumnRecord({
+    required super.name,
+    required super.isNullable,
+    required super.auto,
+    super.length,
+    this.converterType,
+    super.defaultValue,
+  });
 
-  ToOneRecord(this.field, this.targetType, this.joinColumn);
+  // Workaround to hold the converter type. Original annotation only holds Type.
+  final DartType? converterType;
+}
+
+class ColumnRecord extends FieldRecord {
+  ColumnRecord({
+    required super.fieldName,
+    required super.type,
+    required this.annotation,
+  });
+  final EntityColumnRecord annotation;
+
+  @override
+  String toRow() {
+    return '// Column($fieldName, type: $type, isNullable: ${annotation.isNullable}, auto: ${annotation.auto}, length: ${annotation.length}, defaultValue: ${annotation.defaultValue})';
+  }
+}
+
+class ToOneRecord extends FieldRecord {
+  ToOneRecord({
+    required super.fieldName,
+    required super.type,
+    required this.annotation,
+  });
+  final EntityToOne annotation;
+
+  @override
+  String toRow() {
+    return '// ToOne($fieldName, type: $type)';
+  }
 }
 
 class TableRecord {
@@ -37,9 +80,10 @@ class TableRecord {
 
 class OrmInfo {
   final TableRecord tableRecord;
-  final List<PrimaryKeyRecord> primaryKeys = [];
-  final List<ToOneRecord> toOneFields = [];
-  final List<ColumnRecord> columnFields = [];
+  final List<FieldRecord> fields;
 
-  OrmInfo(this.tableRecord);
+  OrmInfo({
+    required this.tableRecord,
+    required this.fields,
+  });
 }
