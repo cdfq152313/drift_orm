@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:drift/drift.dart';
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
 import 'package:recase/recase.dart';
@@ -9,6 +10,7 @@ class EntityParser {
   static const _primaryKeyChecker = TypeChecker.typeNamed(EntityPrimaryKey);
   static const _toOneChecker = TypeChecker.typeNamed(EntityToOne);
   static const _columnChecker = TypeChecker.typeNamed(EntityColumn);
+  static const _converterChecker = TypeChecker.typeNamed(TypeConverter);
 
   /// Parse the entity class and extract annotation information
   OrmInfo parse(
@@ -43,13 +45,14 @@ class EntityParser {
           ColumnRecord(
             fieldName: field.name!,
             type: _tryParseType(field.type),
-            annotation: EntityColumnRecord(
+            annotation: EntityColumn(
               name: reader.peek('name')?.stringValue,
               isNullable: reader.peek('isNullable')!.boolValue,
               auto: reader.peek('auto')!.boolValue,
-              converterType: reader.peek('converter')?.typeValue,
               defaultValue: reader.peek('defaultValue')?.stringValue,
             ),
+            converterRecord:
+                _tryParseConverter(reader.peek('converter')?.typeValue),
           ),
         );
         continue;
@@ -92,5 +95,19 @@ class EntityParser {
           (e) => e.name == dart.getDisplayString(),
         )
         .firstOrNull;
+  }
+
+  ConverterRecord? _tryParseConverter(DartType? type) {
+    if (type is! InterfaceType) {
+      return null;
+    }
+    final converterType = type.allSupertypes
+        .firstWhere((t) => _converterChecker.isExactlyType(t));
+
+    return ConverterRecord(
+      name: type.getDisplayString(),
+      dbType: _tryParseType(converterType.typeArguments.last)!,
+      instanceType: converterType.typeArguments.first.getDisplayString(),
+    );
   }
 }

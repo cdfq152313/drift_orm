@@ -1,4 +1,3 @@
-import 'package:analyzer/dart/element/type.dart';
 import 'package:drift_orm/drift_orm.dart';
 
 enum DartTypeEnum {
@@ -20,7 +19,7 @@ abstract class FieldRecord {
 
   String toRow();
 
-  String _dartTypeToColumn(DartTypeEnum? type) {
+  String tmplType(DartTypeEnum? type) {
     switch (type) {
       case DartTypeEnum.bool:
         return 'boolean()';
@@ -38,6 +37,23 @@ abstract class FieldRecord {
         throw Exception('Unsupported type: $type');
     }
   }
+
+  String tmplField(List<String> extra) {
+    final extraStr = extra.isNotEmpty ? extra.join() : '';
+    return 'late final $fieldName = $extraStr();';
+  }
+
+  String tmplName(String? name) {
+    return name != null ? ".named('$name')" : '';
+  }
+
+  String tmplAuto(bool auto) {
+    return auto ? '.autoIncrement()' : '';
+  }
+
+  String tmplNullable(bool isNullable) {
+    return isNullable ? '.nullable()' : '';
+  }
 }
 
 class PrimaryKeyRecord extends FieldRecord {
@@ -51,24 +67,23 @@ class PrimaryKeyRecord extends FieldRecord {
 
   @override
   String toRow() {
-    final name = annotation.name != null ? ".named('${annotation.name}')" : '';
-    final nullable = annotation.isNullable ? '.nullable()' : '';
-    final auto = annotation.auto ? '.autoIncrement()' : '';
-    return 'late final $fieldName = ${_dartTypeToColumn(type)}$name$nullable$auto();';
+    return tmplField([
+      tmplType(type),
+      tmplName(annotation.name),
+      tmplAuto(annotation.auto),
+    ]);
   }
 }
 
-class EntityColumnRecord extends EntityColumn {
-  EntityColumnRecord({
-    required super.name,
-    required super.isNullable,
-    required super.auto,
-    this.converterType,
-    super.defaultValue,
+class ConverterRecord {
+  ConverterRecord({
+    required this.name,
+    required this.dbType,
+    required this.instanceType,
   });
-
-  // Workaround to hold the converter type. Original annotation only holds Type.
-  final DartType? converterType;
+  final String name;
+  final DartTypeEnum dbType;
+  final String instanceType;
 }
 
 class ColumnRecord extends FieldRecord {
@@ -76,12 +91,31 @@ class ColumnRecord extends FieldRecord {
     required super.fieldName,
     required super.type,
     required this.annotation,
+    required this.converterRecord,
   });
-  final EntityColumnRecord annotation;
+  final EntityColumn annotation;
+  final ConverterRecord? converterRecord;
 
   @override
   String toRow() {
-    return '// Column($fieldName, type: $type, isNullable: ${annotation.isNullable}, auto: ${annotation.auto}, defaultValue: ${annotation.defaultValue})';
+    return tmplField(
+      [
+        ...tmplType2(),
+        tmplName(annotation.name),
+        tmplAuto(annotation.auto),
+        tmplNullable(annotation.isNullable),
+      ],
+    );
+  }
+
+  List<String> tmplType2() {
+    if (converterRecord == null) {
+      return [tmplType(type)];
+    }
+    return [
+      tmplType(converterRecord!.dbType),
+      '.map(const ${converterRecord!.name}())',
+    ];
   }
 }
 

@@ -8,5 +8,22 @@ class TodoOrm {
   @EntityPrimaryKey()
   String id;
 
+  @EntityColumn(converter: MyConverter)
+  DateTime? createdAt;
+
   TodoOrm({required this.id});
+}
+
+class MyConverter extends TypeConverter<DateTime, int> {
+  const MyConverter();
+
+  @override
+  DateTime fromSql(int fromDb) {
+    return DateTime.fromMillisecondsSinceEpoch(fromDb);
+  }
+
+  @override
+  int toSql(DateTime value) {
+    return value.millisecondsSinceEpoch;
+  }
 }
