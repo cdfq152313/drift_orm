@@ -190,4 +190,75 @@ void main() {
       });
     }
   });
+
+  group('ToOneRecord.toForeignKeyField', () {
+    final testCases = [
+      TestCase(
+        name: 'Non-nullable relationship with default refCol',
+        input: (
+          fieldName: 'user',
+          type: 'User',
+          nullable: false,
+          annotation: EntityToOne(isNullable: false),
+          refColType: 'int',
+        ),
+        expected: ["User get user;", "int get userId => user.id;"],
+      ),
+      TestCase(
+        name: 'Nullable relationship with default refCol',
+        input: (
+          fieldName: 'profile',
+          type: 'Profile',
+          nullable: true,
+          annotation: EntityToOne(isNullable: true),
+          refColType: 'int',
+        ),
+        expected: [
+          "Profile? get profile;",
+          "int? get profileId => profile?.id;"
+        ],
+      ),
+      TestCase(
+        name: 'Non-nullable relationship with custom refCol',
+        input: (
+          fieldName: 'category',
+          type: 'Category',
+          nullable: false,
+          annotation: EntityToOne(refCol: 'uuid', isNullable: false),
+          refColType: 'String',
+        ),
+        expected: [
+          "Category get category;",
+          "String get categoryId => category.uuid;"
+        ],
+      ),
+      TestCase(
+        name: 'Nullable relationship with custom refCol',
+        input: (
+          fieldName: 'department',
+          type: 'Department',
+          nullable: true,
+          annotation: EntityToOne(refCol: 'code', isNullable: true),
+          refColType: 'String',
+        ),
+        expected: [
+          "Department? get department;",
+          "String? get departmentId => department?.code;"
+        ],
+      ),
+    ];
+
+    for (final tc in testCases) {
+      test(tc.name, () {
+        final record = ToOneRecord(
+          fieldName: tc.input.fieldName,
+          type: tc.input.type,
+          nullable: tc.input.nullable,
+          annotation: tc.input.annotation,
+          refColType: tc.input.refColType,
+        );
+        expect(record.toForeignKeyField(), equals(tc.expected));
+      });
+    }
+  });
 }
