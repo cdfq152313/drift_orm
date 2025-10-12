@@ -35,4 +35,84 @@ void main() {
       });
     }
   });
+
+  group('ColumnRecord', () {
+    final testCases = [
+      TestCase(
+        name: 'Basic text column',
+        input: (
+          annotation: EntityColumn(isNullable: false),
+          type: DartTypeEnum.String,
+          converter: null,
+        ),
+        expected: "late final name = text()();",
+      ),
+      TestCase(
+        name: 'Custom column name',
+        input: (
+          annotation: EntityColumn(name: 'user_name', isNullable: false),
+          type: DartTypeEnum.String,
+          converter: null,
+        ),
+        expected: "late final name = text().named('user_name')();",
+      ),
+      TestCase(
+        name: 'Nullable column',
+        input: (
+          annotation: EntityColumn(isNullable: true),
+          type: DartTypeEnum.String,
+          converter: null,
+        ),
+        expected: "late final name = text().nullable()();",
+      ),
+      TestCase(
+        name: 'Auto increment column',
+        input: (
+          annotation: EntityColumn(auto: true, isNullable: false),
+          type: DartTypeEnum.int,
+          converter: null,
+        ),
+        expected: "late final name = integer().autoIncrement()();",
+      ),
+      TestCase(
+        name: 'Column with all options',
+        input: (
+          annotation: EntityColumn(
+            name: 'created_at',
+            auto: false,
+            isNullable: true,
+          ),
+          type: DartTypeEnum.DateTime,
+          converter: null,
+        ),
+        expected:
+            "late final name = datetime().named('created_at').nullable()();",
+      ),
+      TestCase(
+        name: 'Column with converter',
+        input: (
+          annotation: EntityColumn(isNullable: false),
+          type: DartTypeEnum.String,
+          converter: ConverterRecord(
+            name: 'JsonConverter',
+            dbType: DartTypeEnum.String,
+            instanceType: 'Map<String, dynamic>',
+          ),
+        ),
+        expected: "late final name = text().map(const JsonConverter())();",
+      ),
+    ];
+
+    for (final tc in testCases) {
+      test(tc.name, () {
+        final record = ColumnRecord(
+          fieldName: 'name',
+          type: tc.input.type,
+          annotation: tc.input.annotation,
+          converterRecord: tc.input.converter,
+        );
+        expect(record.toRow(), equals(tc.expected));
+      });
+    }
+  });
 }
