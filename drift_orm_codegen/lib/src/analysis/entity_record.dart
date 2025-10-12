@@ -7,6 +7,25 @@ abstract class FieldRecord {
   final DartType type;
 
   String toRow();
+
+  String _dartTypeToColumn(DartType type) {
+    switch (type.getDisplayString()) {
+      case 'bool':
+        return 'boolean()';
+      case 'String':
+        return 'text()';
+      case 'int':
+        return 'integer()';
+      case 'double':
+        return 'real()';
+      case 'DateTime':
+        return 'datetime()';
+      case 'Uint8List':
+        return 'blob()';
+      default:
+        throw Exception('Unsupported type: ${type.getDisplayString()}');
+    }
+  }
 }
 
 class PrimaryKeyRecord extends FieldRecord {
@@ -20,7 +39,7 @@ class PrimaryKeyRecord extends FieldRecord {
 
   @override
   String toRow() {
-    return '// PrimaryKey($fieldName, type: $type, autoIncrement: ${annotation.auto})';
+    return 'late final $fieldName = ${_dartTypeToColumn(type)}();';
   }
 }
 

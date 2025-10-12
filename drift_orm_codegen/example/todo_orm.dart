@@ -4,9 +4,9 @@ import 'package:drift_orm/drift_orm.dart';
 part 'todo_orm.drift_orm.g.dart';
 
 @Entity()
-class Event {
+class TodoOrm {
   @EntityPrimaryKey()
   String id;
 
-  Event({required this.id});
+  TodoOrm({required this.id});
 }

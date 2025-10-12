@@ -87,17 +87,6 @@ class EntityParser {
       rowClassName: rowClassName,
     );
   }
-
-  // String _typeToColumnType(DartType type) {
-  //   return const {
-  //     'bool': ColumnType.boolean,
-  //     'String': ColumnType.text,
-  //     'int': ColumnType.integer,
-  //     'double': ColumnType.real,
-  //     'DateTime': ColumnType.datetime,
-  //     'Uint8List': ColumnType.blob,
-  //   }[type.name]!;
-  // }
 }
 
 class _Group {

@@ -7,7 +7,9 @@ import 'todo_orm.dart';
 part 'drift_orm_codegen_example.g.dart';
 
 @DriftDatabase(
-    daos: [TodoAutosDao, TodoCustomsDao], tables: [TodoAutos, TodoCustoms])
+  daos: [TodoAutosDao, TodoCustomsDao],
+  tables: [TodoAutos, TodoCustoms, TodoOrms],
+)
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
   // and a constructor telling drift where the database should be stored.

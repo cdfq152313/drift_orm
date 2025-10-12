@@ -9,6 +9,7 @@ class TodoCustom {
   String title;
   String content;
   DateTime? createdAt;
+  Duration? duration;
   TodoCustom(
       {required this.id,
       required this.title,
@@ -22,6 +23,21 @@ class TodoCustoms extends Table {
   TextColumn get title => text().withLength(min: 6, max: 32)();
   TextColumn get content => text().named('body')();
   DateTimeColumn get createdAt => dateTime().nullable()();
+  IntColumn get duration =>
+      integer().map(const DurationConverter()).nullable()();
+}
+
+class DurationConverter extends TypeConverter<Duration, int> {
+  const DurationConverter();
+  @override
+  Duration fromSql(int fromDb) {
+    throw UnimplementedError();
+  }
+
+  @override
+  int toSql(Duration value) {
+    throw UnimplementedError();
+  }
 }
 
 @DriftAccessor(tables: [TodoCustoms])
