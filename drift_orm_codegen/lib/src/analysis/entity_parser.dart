@@ -30,7 +30,6 @@ class EntityParser {
           annotation: EntityPrimaryKey(
             name: reader.peek('name')?.stringValue,
             auto: reader.peek('auto')!.boolValue,
-            length: reader.peek('length')?.intValue,
           ),
         ));
         continue;
@@ -47,7 +46,6 @@ class EntityParser {
               name: reader.peek('name')?.stringValue,
               isNullable: reader.peek('isNullable')!.boolValue,
               auto: reader.peek('auto')!.boolValue,
-              length: reader.peek('length')?.intValue,
               converterType: reader.peek('converter')?.typeValue,
               defaultValue: reader.peek('defaultValue')?.stringValue,
             ),
@@ -65,7 +63,6 @@ class EntityParser {
           annotation: EntityToOne(
             name: reader.peek('name')?.stringValue,
             isNullable: reader.peek('isNullable')!.boolValue,
-            length: reader.peek('length')?.intValue,
             refCol: reader.peek('refCol')!.stringValue,
           ),
         ));

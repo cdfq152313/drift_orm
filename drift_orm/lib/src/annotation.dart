@@ -12,8 +12,6 @@ abstract class EntityColumnBase {
   bool get isNullable;
 
   bool get auto;
-
-  int? get length;
 }
 
 @Target({TargetKind.field})
@@ -25,8 +23,6 @@ class EntityColumn implements EntityColumnBase {
 
   final bool auto;
 
-  final int? length;
-
   final Type? converter;
 
   final String? defaultValue;
@@ -35,7 +31,6 @@ class EntityColumn implements EntityColumnBase {
     this.name,
     this.isNullable = true,
     this.auto = false,
-    this.length,
     this.converter,
     this.defaultValue,
   });
@@ -51,12 +46,9 @@ class EntityPrimaryKey implements EntityColumnBase {
 
   final bool auto;
 
-  final int? length;
-
   const EntityPrimaryKey({
     this.name,
     this.auto = false,
-    this.length,
   });
 }
 
@@ -71,15 +63,12 @@ class EntityToOne implements ForeignBase {
 
   final bool auto = false;
 
-  final int? length;
-
   /// The field/column in the foreign bean
   final String refCol;
 
   const EntityToOne({
     this.name,
     this.isNullable = true,
-    this.length,
     this.refCol = 'id',
   });
 }

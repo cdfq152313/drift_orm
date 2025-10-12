@@ -39,7 +39,10 @@ class PrimaryKeyRecord extends FieldRecord {
 
   @override
   String toRow() {
-    return 'late final $fieldName = ${_dartTypeToColumn(type)}();';
+    final name = annotation.name != null ? ".named('${annotation.name}')" : '';
+    final nullable = annotation.isNullable ? '.nullable()' : '';
+    final auto = annotation.auto ? '.autoIncrement()' : '';
+    return 'late final $fieldName = ${_dartTypeToColumn(type)}$auto$name$nullable();';
   }
 }
 
@@ -48,7 +51,6 @@ class EntityColumnRecord extends EntityColumn {
     required super.name,
     required super.isNullable,
     required super.auto,
-    super.length,
     this.converterType,
     super.defaultValue,
   });
@@ -67,7 +69,7 @@ class ColumnRecord extends FieldRecord {
 
   @override
   String toRow() {
-    return '// Column($fieldName, type: $type, isNullable: ${annotation.isNullable}, auto: ${annotation.auto}, length: ${annotation.length}, defaultValue: ${annotation.defaultValue})';
+    return '// Column($fieldName, type: $type, isNullable: ${annotation.isNullable}, auto: ${annotation.auto}, defaultValue: ${annotation.defaultValue})';
   }
 }
 
