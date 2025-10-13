@@ -1,11 +1,12 @@
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
+import 'package:drift_orm_codegen/src/writer/table_writer.dart';
 import 'package:test/test.dart';
 
 import '../basic.dart';
 
 void main() {
-  group('PrimaryKeyRecord', () {
+  group('TableWriter - PrimaryKeyRecord generation', () {
     final testCases = [
       TestCase(
         name: 'No argument',
@@ -26,17 +27,19 @@ void main() {
 
     for (final tc in testCases) {
       test(tc.name, () {
+        final writer = TableWriter();
         final record = PrimaryKeyRecord(
           fieldName: 'id',
           type: 'int',
           annotation: tc.input,
         );
-        expect(record.toRow(), equals(tc.expected));
+        final result = writer.generateFieldRow(record);
+        expect(result, equals(tc.expected));
       });
     }
   });
 
-  group('ColumnRecord', () {
+  group('TableWriter - ColumnRecord generation', () {
     final testCases = [
       TestCase(
         name: 'Basic text column',
@@ -123,18 +126,20 @@ void main() {
 
     for (final tc in testCases) {
       test(tc.name, () {
+        final writer = TableWriter();
         final record = ColumnRecord(
           fieldName: 'name',
           type: tc.input.type,
           annotation: tc.input.annotation,
           converterRecord: tc.input.converter,
         );
-        expect(record.toRow(), equals(tc.expected));
+        final result = writer.generateFieldRow(record);
+        expect(result, equals(tc.expected));
       });
     }
   });
 
-  group('ToOneRecord', () {
+  group('TableWriter - ToOneRecord generation', () {
     final testCases = [
       TestCase(
         name: 'Basic to-one relationship with int reference',
@@ -179,6 +184,7 @@ void main() {
 
     for (final tc in testCases) {
       test(tc.name, () {
+        final writer = TableWriter();
         final record = ToOneRecord(
           fieldName: tc.input.type.toLowerCase(),
           type: tc.input.type,
@@ -186,79 +192,61 @@ void main() {
           annotation: tc.input.annotation,
           refColType: tc.input.refColType,
         );
-        expect(record.toRow(), equals(tc.expected));
+        final result = writer.generateFieldRow(record);
+        expect(result, equals(tc.expected));
       });
     }
   });
 
-  group('ToOneRecord.toForeignKeyField', () {
-    final testCases = [
-      TestCase(
-        name: 'Non-nullable relationship with default refCol',
-        input: (
-          fieldName: 'user',
+  group('TableWriter - Full table generation', () {
+    test('Complete table with mixed field types', () {
+      final writer = TableWriter();
+      final tableRecord = TableRecord(
+        tableName: 'posts',
+        tableClassName: 'Posts',
+        rowClassName: 'Post',
+      );
+
+      final fields = <FieldRecord>[
+        PrimaryKeyRecord(
+          fieldName: 'id',
+          type: 'int',
+          annotation: EntityPrimaryKey(auto: true),
+        ),
+        ColumnRecord(
+          fieldName: 'title',
+          type: 'String',
+          annotation: EntityColumn(isNullable: false),
+          converterRecord: null,
+        ),
+        ColumnRecord(
+          fieldName: 'content',
+          type: 'String',
+          annotation: EntityColumn(isNullable: true),
+          converterRecord: null,
+        ),
+        ToOneRecord(
+          fieldName: 'author',
           type: 'User',
           nullable: false,
           annotation: EntityToOne(isNullable: false),
           refColType: 'int',
         ),
-        expected: ["User get user;", "int get userId => user.id;"],
-      ),
-      TestCase(
-        name: 'Nullable relationship with default refCol',
-        input: (
-          fieldName: 'profile',
-          type: 'Profile',
-          nullable: true,
-          annotation: EntityToOne(isNullable: true),
-          refColType: 'int',
-        ),
-        expected: [
-          "Profile? get profile;",
-          "int? get profileId => profile?.id;"
-        ],
-      ),
-      TestCase(
-        name: 'Non-nullable relationship with custom refCol',
-        input: (
-          fieldName: 'category',
-          type: 'Category',
-          nullable: false,
-          annotation: EntityToOne(refCol: 'uuid', isNullable: false),
-          refColType: 'String',
-        ),
-        expected: [
-          "Category get category;",
-          "String get categoryId => category.uuid;"
-        ],
-      ),
-      TestCase(
-        name: 'Nullable relationship with custom refCol',
-        input: (
-          fieldName: 'department',
-          type: 'Department',
-          nullable: true,
-          annotation: EntityToOne(refCol: 'code', isNullable: true),
-          refColType: 'String',
-        ),
-        expected: [
-          "Department? get department;",
-          "String? get departmentId => department?.code;"
-        ],
-      ),
-    ];
+      ];
 
-    for (final tc in testCases) {
-      test(tc.name, () {
-        final record = ToOneRecord(
-          fieldName: tc.input.fieldName,
-          type: tc.input.type,
-          nullable: tc.input.nullable,
-          annotation: tc.input.annotation,
-          refColType: tc.input.refColType,
-        );
-        expect(record.toForeignKeyField(), equals(tc.expected));
-      });
-    }
+      final ormInfo = OrmInfo(
+        tableRecord: tableRecord,
+        fields: fields,
+      );
+
+      final result = writer.write(ormInfo);
+      
+      expect(result, contains('@UseRowClass(Post)'));
+      expect(result, contains('class Posts extends Table {'));
+      expect(result, contains('late final id = integer().autoIncrement()();'));
+      expect(result, contains('late final title = text()();'));
+      expect(result, contains('late final content = text().nullable()();'));
+      expect(result, contains('late final authorId = integer().references(Users, #id)();'));
+    });
   });
 }

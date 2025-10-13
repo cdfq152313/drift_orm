@@ -5,7 +5,8 @@ import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_parser.dart';
-import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
+import 'package:drift_orm_codegen/src/writer/foreign_key_writer.dart';
+import 'package:drift_orm_codegen/src/writer/table_writer.dart';
 import 'package:source_gen/source_gen.dart';
 
 class EntityGenerator extends GeneratorForAnnotation<Entity> {
@@ -13,6 +14,10 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
   final _dartfmt = DartFormatter(
     languageVersion: DartFormatter.latestLanguageVersion,
   );
+  final _writers = [
+    TableWriter(),
+    ForeignKeyWriter(),
+  ];
 
   @override
   FutureOr<String> generateForAnnotatedElement(
@@ -28,20 +33,8 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
     }
 
     final entityInfo = _parser.parse(element, annotation);
-    final result = generateEntityCode(entityInfo);
+    final result =
+        _writers.map((writer) => writer.write(entityInfo)).join('\n');
     return _dartfmt.format(result);
-  }
-
-  /// Generate code based on parsed entity information
-  String generateEntityCode(OrmInfo orm) {
-    return """
-@UseRowClass(${orm.tableRecord.rowClassName})
-class ${orm.tableRecord.tableClassName} extends Table {
-${orm.fields.map((e) => e.toRow()).join('\n')}
-}
-mixin _\$${orm.tableRecord.rowClassName}ForeignKeyMixin {
-  ${orm.fields.whereType<ToOneRecord>().expand((e) => e.toForeignKeyField()).join('\n')}
-}
-""";
   }
 }

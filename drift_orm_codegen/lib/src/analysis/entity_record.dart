@@ -1,47 +1,9 @@
 import 'package:drift_orm/drift_orm.dart';
 
-abstract class FieldRecord {
+sealed class FieldRecord {
   FieldRecord({required this.fieldName, required this.type});
   final String fieldName;
   final String type;
-
-  String toRow();
-
-  String tmplPrimitiveType(String type) {
-    switch (type) {
-      case 'bool':
-        return 'boolean()';
-      case 'String':
-        return 'text()';
-      case 'int':
-        return 'integer()';
-      case 'double':
-        return 'real()';
-      case 'DateTime':
-        return 'datetime()';
-      case 'Uint8List':
-        return 'blob()';
-      default:
-        throw Exception('Unsupported type: $type');
-    }
-  }
-
-  String tmplField(String fieldName, List<String> extra) {
-    final extraStr = extra.isNotEmpty ? extra.join() : '';
-    return 'late final $fieldName = $extraStr();';
-  }
-
-  String tmplName(String? name) {
-    return name != null ? ".named('$name')" : '';
-  }
-
-  String tmplAuto(bool auto) {
-    return auto ? '.autoIncrement()' : '';
-  }
-
-  String tmplNullable(bool isNullable) {
-    return isNullable ? '.nullable()' : '';
-  }
 }
 
 class PrimaryKeyRecord extends FieldRecord {
@@ -52,18 +14,6 @@ class PrimaryKeyRecord extends FieldRecord {
   });
 
   final EntityPrimaryKey annotation;
-
-  @override
-  String toRow() {
-    return tmplField(
-      fieldName,
-      [
-        tmplPrimitiveType(type),
-        tmplName(annotation.name),
-        tmplAuto(annotation.auto),
-      ],
-    );
-  }
 }
 
 class ConverterRecord {
@@ -86,46 +36,6 @@ class ColumnRecord extends FieldRecord {
   });
   final EntityColumn annotation;
   final ConverterRecord? converterRecord;
-
-  @override
-  String toRow() {
-    return tmplField(
-      fieldName,
-      [
-        ...tmplType2(),
-        tmplName(annotation.name),
-        tmplAuto(annotation.auto),
-        tmplNullable(annotation.isNullable),
-        tmplDefaultValue(),
-      ],
-    );
-  }
-
-  List<String> tmplType2() {
-    if (converterRecord == null) {
-      return [tmplPrimitiveType(type)];
-    }
-    return [
-      tmplPrimitiveType(converterRecord!.dbType),
-      '.map(const ${converterRecord!.name}())',
-    ];
-  }
-
-  String tmplDefaultValue() {
-    switch (annotation.defaultValue) {
-      case null:
-        return '';
-      case String _:
-        return ".withDefault(Constant('${annotation.defaultValue}'))";
-      case int _:
-      case double _:
-      case bool _:
-        return ".withDefault(Constant(${annotation.defaultValue}))";
-      default:
-        throw Exception(
-            'Unsupported default value type: ${annotation.defaultValue.runtimeType}');
-    }
-  }
 }
 
 class ToOneRecord extends FieldRecord {
@@ -141,33 +51,6 @@ class ToOneRecord extends FieldRecord {
   final bool nullable;
 
   String get foreignIdFieldName => '${fieldName}Id';
-
-  @override
-  String toRow() {
-    return tmplField(
-      foreignIdFieldName,
-      [
-        tmplPrimitiveType(refColType),
-        tmplForeignKey(),
-        tmplName(annotation.name),
-        tmplNullable(annotation.isNullable),
-      ],
-    );
-  }
-
-  List<String> toForeignKeyField() {
-    final type = nullable ? '${this.type}?' : this.type;
-    final refColType = nullable ? '${this.refColType}?' : this.refColType;
-    final fieldName = nullable ? '${this.fieldName}?' : this.fieldName;
-    return [
-      "$type get ${this.fieldName};",
-      "$refColType get $foreignIdFieldName => $fieldName.${annotation.refCol};"
-    ];
-  }
-
-  String tmplForeignKey() {
-    return ".references(${type}s, #${annotation.refCol})";
-  }
 }
 
 class TableRecord {
