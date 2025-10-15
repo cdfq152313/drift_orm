@@ -8,7 +8,7 @@ part 'drift_orm_codegen_example.g.dart';
 
 @DriftDatabase(
   daos: [TodoAutosDao, TodoCustomsDao],
-  tables: [TodoAutos, TodoCustoms, TodoOrms],
+  tables: [TodoAutos, TodoCustoms, TodoOrms, Extras],
 )
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter

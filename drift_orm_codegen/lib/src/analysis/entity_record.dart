@@ -1,4 +1,5 @@
 import 'package:drift_orm/drift_orm.dart';
+import 'package:recase/recase.dart';
 
 sealed class FieldRecord {
   FieldRecord({required this.fieldName, required this.type});
@@ -45,9 +46,10 @@ class ToOneRecord extends FieldRecord {
     required this.nullable,
     required this.annotation,
     required this.refColType,
-  });
+  }) : tableInstanceName = "${ReCase(type).snakeCase}s";
   final EntityToOne annotation;
   final String refColType;
+  final String tableInstanceName;
   final bool nullable;
 
   String get foreignIdFieldName => '${fieldName}Id';
@@ -56,13 +58,14 @@ class ToOneRecord extends FieldRecord {
 class TableRecord {
   final String tableName;
   final String tableClassName;
+  final String tableInstanceName;
   final String rowClassName;
 
   TableRecord({
     required this.tableName,
     required this.tableClassName,
     required this.rowClassName,
-  });
+  }) : tableInstanceName = ReCase(tableClassName).camelCase;
 }
 
 class OrmInfo {

@@ -1,6 +1,6 @@
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
-import 'package:drift_orm_codegen/src/writer/foreign_key_writer.dart';
+import 'package:drift_orm_codegen/src/writer/orm_row_mixin_writer.dart';
 import 'package:test/test.dart';
 
 import '../basic.dart';
@@ -65,7 +65,7 @@ void main() {
 
     for (final tc in testCases) {
       test(tc.name, () {
-        final writer = ForeignKeyWriter();
+        final writer = OrmRowMixinWriter();
         final record = tc.input;
         final result = writer.generateForeignKeyField(record);
         expect(result, equals(tc.expected));
@@ -75,7 +75,7 @@ void main() {
 
   group('ForeignKeyWriter - Full mixin generation', () {
     test('Generate mixin with single ToOne relationship', () {
-      final writer = ForeignKeyWriter();
+      final writer = OrmRowMixinWriter();
       final tableRecord = TableRecord(
         tableName: 'posts',
         tableClassName: 'Posts',

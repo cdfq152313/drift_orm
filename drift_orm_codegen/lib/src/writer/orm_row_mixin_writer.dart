@@ -1,17 +1,14 @@
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
 import 'package:drift_orm_codegen/src/writer/writer.dart';
 
-class ForeignKeyWriter extends Writer {
+class OrmRowMixinWriter extends Writer {
   @override
   String write(OrmInfo orm) {
     final toOneFields = orm.fields.whereType<ToOneRecord>();
 
-    if (toOneFields.isEmpty) {
-      return '';
-    }
-
     return """
-mixin _\$${orm.tableRecord.rowClassName}ForeignKeyMixin {
+mixin _\$${orm.tableRecord.rowClassName}OrmRowMixin {
+  Future<void> save();
   ${toOneFields.expand((e) => generateForeignKeyField(e)).join('\n')}
 }
 """;
