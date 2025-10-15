@@ -10,6 +10,7 @@ class OrmDaoMixinWriter extends Writer {
     );
 
     _writeUpsert(orm, buffer);
+    _writeUpsertAll(orm, buffer);
 
     buffer.writeln("}");
     return buffer.toString();
@@ -37,24 +38,26 @@ class OrmDaoMixinWriter extends Writer {
     buffer.writeln('}');
   }
 
-  // void _writeUpsertAll(OrmInfo orm, StringBuffer buffer) {
-  //   buffer.write(
-  //       'Future upsertAll(List<${table.dartTypeName}> instances) async {\n');
-  //   final toOneColumns =
-  //       table.columns.where((c) => c.features.any((f) => f is ToOne));
+  void _writeUpsertAll(OrmInfo orm, StringBuffer buffer) {
+    final toOneColumns = orm.fields.whereType<ToOneRecord>();
 
-  //   for (final column in toOneColumns) {
-  //     final entityType = column.getToOne()!.referencedTable.entityClass!.name;
-  //     final whereNotNull = column.nullable ? '.whereType<$entityType>()' : '';
-  //     buffer.write(
-  //         'await instances.map((instance) => instance.${column.fieldName})$whereNotNull.toList().saveAll();\n');
-  //   }
+    buffer.writeln(
+      'Future upsertAll(List<${orm.tableRecord.rowClassName}> instances) async {',
+    );
+    for (final column in toOneColumns) {
+      final whereNotNull =
+          column.nullable ? '.whereType<${column.type}>()' : '';
+      buffer.writeln(
+        'await instances.map((instance) => instance.${column.fieldName})$whereNotNull.toList().saveAll();',
+      );
+    }
 
-  //   buffer.write(
-  //       'await batch((b) => b.insertAll(${table.dbGetterName}, instances, mode: InsertMode.insertOrReplace));\n');
+    buffer.writeln(
+      'await batch((b) => b.insertAll(${orm.tableRecord.tableInstanceName}, instances, mode: InsertMode.insertOrReplace));',
+    );
 
-  //   buffer.write('}\n');
-  // }
+    buffer.write('}\n');
+  }
 
   // void _writeLoadAll(OrmInfo orm, StringBuffer buffer) {
   //   final tableClassName = table.entityInfoName;
