@@ -6,7 +6,7 @@ class TableWriter extends Writer {
   String write(OrmInfo orm) {
     return """
 @UseRowClass(${orm.tableRecord.rowClassName})
-class ${orm.tableRecord.tableClassName} extends Table {
+class ${orm.tableRecord.tableClassName} extends OrmTable {
 ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
 }""";
   }

@@ -11,6 +11,7 @@ class OrmDaoMixinWriter extends Writer {
 
     _writeUpsert(orm, buffer);
     _writeUpsertAll(orm, buffer);
+    _writeLoadAll(orm, buffer);
 
     buffer.writeln("}");
     return buffer.toString();
@@ -59,42 +60,42 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write('}\n');
   }
 
-  // void _writeLoadAll(OrmInfo orm, StringBuffer buffer) {
-  //   final tableClassName = table.entityInfoName;
+  void _writeLoadAll(OrmInfo orm, StringBuffer buffer) {
+    buffer.write(
+        'Future<List<${orm.tableRecord.rowClassName}>> loadAll({WhereFilter<${orm.tableRecord.tableClassName}>? where, '
+        'int? limit, int? offset, List<OrderClauseGenerator<${orm.tableRecord.tableClassName}>>? orderBy}) {\n');
 
-  //   buffer.write(
-  //       'Future<List<${table.dartTypeName}>> loadAll({WhereFilter<$tableClassName>? where, '
-  //       'int? limit, int? offset, List<OrderClauseGenerator<$tableClassName>>? orderBy}) {\n');
+    buffer.write(
+        'final statement = select(${orm.tableRecord.tableInstanceName});\n');
+    buffer.write('if (where != null) {\n');
+    buffer.write('statement.where(where);\n');
+    buffer.write('}\n');
 
-  //   buffer.write('final statement = select(${table.dbGetterName});\n');
-  //   buffer.write('if (where != null) {\n');
-  //   buffer.write('statement.where(where);\n');
-  //   buffer.write('}\n');
+    buffer.write('if (orderBy != null) {\n');
+    buffer.write('statement.orderBy(orderBy);\n');
+    buffer.write('}\n');
 
-  //   buffer.write('if (orderBy != null) {\n');
-  //   buffer.write('statement.orderBy(orderBy);\n');
-  //   buffer.write('}\n');
+    buffer.write(
+        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins();\n');
 
-  //   buffer.write('final joins = ${table.dbGetterName}.getJoins();\n');
+    buffer.write('if (joins.isEmpty) {\n');
+    buffer.write('if (limit != null) {\n');
+    buffer.write('statement.limit(limit, offset: offset);\n');
+    buffer.write('}\n');
+    buffer.write('return statement.get();\n');
+    buffer.write('} else {\n');
+    buffer.write('final joinedStatement = statement.join(joins);\n');
+    buffer.write('if (limit != null) {\n');
+    buffer.write('joinedStatement.limit(limit, offset: offset);\n');
+    buffer.write('}\n');
+    buffer.write('return joinedStatement.get().then((rows) {\n');
+    buffer.write(
+        'return rows.map((row) => row.readTable(${orm.tableRecord.tableInstanceName})).toList();\n');
+    buffer.write('});\n');
+    buffer.write('}\n');
 
-  //   buffer.write('if (joins.length == 0) {\n');
-  //   buffer.write('if (limit != null) {\n');
-  //   buffer.write('statement.limit(limit, offset: offset);\n');
-  //   buffer.write('}\n');
-  //   buffer.write('return statement.get();\n');
-  //   buffer.write('} else {\n');
-  //   buffer.write('final joinedStatement = statement.join(joins);\n');
-  //   buffer.write('if (limit != null) {\n');
-  //   buffer.write('joinedStatement.limit(limit, offset: offset);\n');
-  //   buffer.write('}\n');
-  //   buffer.write('return joinedStatement.get().then((rows) {\n');
-  //   buffer.write(
-  //       'return rows.map((row) => row.readTable(${table.dbGetterName})).toList();\n');
-  //   buffer.write('});\n');
-  //   buffer.write('}\n');
-
-  //   buffer.write('}\n');
-  // }
+    buffer.write('}\n');
+  }
 
   // void _writeLoad(OrmInfo orm, StringBuffer buffer) {
   //   buffer.write('Future<${table.dartTypeName}?> load(key) async {\n');
