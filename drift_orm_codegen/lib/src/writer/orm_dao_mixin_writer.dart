@@ -12,6 +12,8 @@ class OrmDaoMixinWriter extends Writer {
     _writeUpsert(orm, buffer);
     _writeUpsertAll(orm, buffer);
     _writeLoadAll(orm, buffer);
+    _writeLoad(orm, buffer);
+    _writePartialUpdate(orm, buffer);
 
     buffer.writeln("}");
     return buffer.toString();
@@ -97,35 +99,37 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write('}\n');
   }
 
-  // void _writeLoad(OrmInfo orm, StringBuffer buffer) {
-  //   buffer.write('Future<${table.dartTypeName}?> load(key) async {\n');
-  //   buffer.write('final statement = select(${table.dbGetterName});\n');
-  //   buffer.write(
-  //       'statement.where((table) => table.primaryKey.first.equals(key));\n');
-  //   buffer.write('final joins = ${table.dbGetterName}.getJoins();\n');
-  //   buffer.write('final list = await (joins.length == 0\n');
-  //   buffer.write('? statement.get()\n');
-  //   buffer.write(': statement.join(joins).get().then((rows) {\n');
-  //   buffer.write(
-  //       'return rows.map((row) => row.readTable(${table.dbGetterName})).toList();\n');
-  //   buffer.write('}));\n');
-  //   buffer.write('return list.length > 0 ? list.first : null;\n');
-  //   buffer.write('}\n');
-  // }
+  void _writeLoad(OrmInfo orm, StringBuffer buffer) {
+    buffer
+        .write('Future<${orm.tableRecord.rowClassName}?> load(key) async {\n');
+    buffer.write(
+        'final statement = select(${orm.tableRecord.tableInstanceName});\n');
+    buffer.write(
+        'statement.where((table) => table.primaryKey.first.equals(key));\n');
+    buffer.write(
+        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins();\n');
+    buffer.write('final list = await (joins.isEmpty\n');
+    buffer.write('? statement.get()\n');
+    buffer.write(': statement.join(joins).get().then((rows) {\n');
+    buffer.write(
+        'return rows.map((row) => row.readTable(${orm.tableRecord.tableInstanceName})).toList();\n');
+    buffer.write('}));\n');
+    buffer.write('return list.isNotEmpty ? list.first : null;\n');
+    buffer.write('}\n');
+  }
 
-  // void _writePartialUpdate(OrmInfo orm, StringBuffer buffer) {
-  //   final tableClassName = table.entityInfoName;
+  void _writePartialUpdate(OrmInfo orm, StringBuffer buffer) {
+    buffer.write(
+        'Future<int> partialUpdate(${orm.tableRecord.tableClassName}Companion companion, {WhereFilter<${orm.tableRecord.tableClassName}>? where}) {\n');
 
-  //   buffer.write(
-  //       'Future<int> partialUpdate(${tableClassName}Companion companion, {WhereFilter<$tableClassName>? where}) {\n');
+    buffer.write(
+        'final statement = update(${orm.tableRecord.tableInstanceName});\n');
+    buffer.write('if (where != null) {\n');
+    buffer.write('statement.where(where);\n');
+    buffer.write('}\n');
 
-  //   buffer.write('final statement = update(${table.dbGetterName});\n');
-  //   buffer.write('if (where != null) {\n');
-  //   buffer.write('statement.where(where);\n');
-  //   buffer.write('}\n');
+    buffer.write('return statement.write(companion);\n');
 
-  //   buffer.write('return statement.write(companion);\n');
-
-  //   buffer.write('}\n');
-  // }
+    buffer.write('}\n');
+  }
 }
