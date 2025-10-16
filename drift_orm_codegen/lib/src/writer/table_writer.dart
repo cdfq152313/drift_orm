@@ -8,6 +8,7 @@ class TableWriter extends Writer {
 @UseRowClass(${orm.tableRecord.rowClassName})
 class ${orm.tableRecord.tableClassName} extends OrmTable {
 ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
+${generateBuildJoinInfo(orm)}
 }""";
   }
 
@@ -44,6 +45,21 @@ ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
         _tmplDefaultValue(col.annotation.defaultValue),
       ],
     );
+  }
+
+  String generateBuildJoinInfo(OrmInfo orm) {
+    final toOneColumns = orm.fields.whereType<ToOneRecord>();
+    final x = toOneColumns.map((c) {
+      return "${c.foreignIdFieldName}: ${c.type}s()";
+    }).join();
+    return '''
+  @override
+  Map<Column, OrmTable> buildJoinInfo() {
+    return {
+      $x
+    };
+  }
+    ''';
   }
 
   String _generateToOneRow(ToOneRecord toOne) {

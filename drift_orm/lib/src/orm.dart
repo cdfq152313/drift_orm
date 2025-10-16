@@ -17,7 +17,7 @@ class OrmTable extends Table {
     return joins;
   }
 
-  Map<GeneratedColumn, OrmTable> buildJoinInfo() {
+  Map<Column, OrmTable> buildJoinInfo() {
     return {};
   }
 }
