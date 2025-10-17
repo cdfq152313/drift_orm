@@ -9,6 +9,7 @@ class TableWriter extends Writer {
 class ${orm.tableRecord.tableClassName} extends OrmTable {
 ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
 ${generateBuildJoinInfo(orm)}
+${generatePrimaryKey(orm)}
 }""";
   }
 
@@ -60,6 +61,14 @@ ${generateBuildJoinInfo(orm)}
     };
   }
     ''';
+  }
+
+  String generatePrimaryKey(OrmInfo orm) {
+    final pk = orm.fields.whereType<PrimaryKeyRecord>().first;
+    return """
+  @override
+  Set<Column<Object>> get primaryKey => {${pk.fieldName}};
+""";
   }
 
   String _generateToOneRow(ToOneRecord toOne) {
