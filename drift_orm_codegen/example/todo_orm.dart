@@ -15,12 +15,17 @@ class TodoOrm with _$TodoOrmOrmRowMixin, $TodoOrmsTableToColumns {
   DateTime? createdAt;
 
   @EntityColumn(defaultValue: false)
-  bool isDone = false;
+  bool isDone;
 
   @EntityToOne()
   Extra? extraField;
 
-  TodoOrm({required this.id});
+  TodoOrm({
+    required this.id,
+    this.createdAt,
+    bool? isDone,
+    this.extraField,
+  }) : isDone = isDone ?? false;
 }
 
 @Entity()
