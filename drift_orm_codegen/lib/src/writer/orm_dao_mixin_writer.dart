@@ -77,7 +77,7 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write('}\n');
     buffer.write('return joinedStatement.get().then((rows) {\n');
     buffer.write(
-        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(db.tableMap, row)).toList();\n');
+        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(db.tableMap, row)!).toList();\n');
     buffer.write('});\n');
     buffer.write('}\n');
 
@@ -97,7 +97,7 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write('? statement.get()\n');
     buffer.write(': statement.join(joins).get().then((rows) {\n');
     buffer.write(
-        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(db.tableMap, row)).toList();\n');
+        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(db.tableMap, row)!).toList();\n');
     buffer.write('}));\n');
     buffer.write('return list.isNotEmpty ? list.first : null;\n');
     buffer.write('}\n');

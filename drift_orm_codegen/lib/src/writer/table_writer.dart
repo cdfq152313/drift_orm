@@ -162,8 +162,11 @@ ${generateSaveRows(orm)}
 
     return '''
   @override
-  ${orm.tableRecord.rowClassName} extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
-    final result = row.readTable(this as TableInfo) as ${orm.tableRecord.rowClassName};
+  ${orm.tableRecord.rowClassName}? extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
+    final result = row.readTableOrNull(this as TableInfo) as ${orm.tableRecord.rowClassName}?;
+    if (result == null) {
+      return null;
+    }
     $joinsExtraction
     return result;
   }

@@ -22,7 +22,7 @@ class OrmTable<T> extends Table {
     return {};
   }
 
-  T extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
+  T? extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
     throw UnimplementedError();
   }
 

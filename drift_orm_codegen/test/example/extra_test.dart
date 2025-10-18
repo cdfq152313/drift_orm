@@ -22,13 +22,24 @@ void main() {
   }
 
   group('Simple DAO Tests - No Relationships', () {
-    test('Extra upsert and load', () async {
+    test('Extra insert and load', () async {
       final extra = Extra(id: 100, info: 'test info');
 
       await database.extrasDao.upsert(extra);
 
       final result = await database.extrasDao.load(100);
 
+      assert(equal(result, extra));
+    });
+
+    test('Extra update and load', () async {
+      final extra = Extra(id: 100, info: 'test info');
+      await database.extrasDao.upsert(extra);
+
+      extra.info = 'updated info';
+      await database.extrasDao.upsert(extra);
+
+      final result = await database.extrasDao.load(100);
       assert(equal(result, extra));
     });
 
