@@ -24,7 +24,8 @@ class OrmTable extends Table {
 }
 
 mixin OrmDatabaseMixin on GeneratedDatabase {
-  Map<String, OrmTable> get tableMap {
+  late final Map<String, OrmTable> tableMap = _getTableMap();
+  Map<String, OrmTable> _getTableMap() {
     final tableMap = <String, OrmTable>{};
     for (final table in allTables.whereType<OrmTable>()) {
       tableMap[(table as TableInfo).actualTableName] = table;
