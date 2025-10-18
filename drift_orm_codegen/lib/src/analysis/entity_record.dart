@@ -46,10 +46,12 @@ class ToOneRecord extends FieldRecord {
     required this.nullable,
     required this.annotation,
     required this.refColType,
-  }) : tableInstanceName = "${ReCase(type).snakeCase}s";
+  })  : tableInstanceName = "${ReCase(type).camelCase}s",
+        tableName = "${ReCase(type).snakeCase}s";
   final EntityToOne annotation;
   final String refColType;
   final String tableInstanceName;
+  final String tableName;
   final bool nullable;
 
   String get foreignIdFieldName => '${fieldName}Id';

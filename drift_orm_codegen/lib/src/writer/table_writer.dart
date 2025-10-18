@@ -51,11 +51,11 @@ ${generatePrimaryKey(orm)}
   String generateBuildJoinInfo(OrmInfo orm) {
     final toOneColumns = orm.fields.whereType<ToOneRecord>();
     final x = toOneColumns.map((c) {
-      return "${c.foreignIdFieldName}: ${c.type}s()";
+      return "${c.foreignIdFieldName}: tableMap['${c.tableName}']!";
     }).join();
     return '''
   @override
-  Map<Column, OrmTable> buildJoinInfo() {
+  Map<Column, OrmTable> buildJoinInfo(Map<String, OrmTable> tableMap) {
     return {
       $x
     };

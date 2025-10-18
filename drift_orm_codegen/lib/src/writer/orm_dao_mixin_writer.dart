@@ -78,7 +78,7 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write('}\n');
 
     buffer.write(
-        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins();\n');
+        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins(db.tableMap);\n');
 
     buffer.write('if (joins.isEmpty) {\n');
     buffer.write('if (limit != null) {\n');
@@ -107,7 +107,7 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write(
         'statement.where((table) => table.primaryKey.first.equals(key));\n');
     buffer.write(
-        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins();\n');
+        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins(db.tableMap);\n');
     buffer.write('final list = await (joins.isEmpty\n');
     buffer.write('? statement.get()\n');
     buffer.write(': statement.join(joins).get().then((rows) {\n');
