@@ -20,21 +20,13 @@ class OrmDaoMixinWriter extends Writer {
   }
 
   void _writeUpsert(OrmInfo orm, StringBuffer buffer) {
-    final toOneColumns = orm.fields.whereType<ToOneRecord>();
-
     buffer.writeln(
       'Future upsert(${orm.tableRecord.rowClassName} instance) {',
     );
 
-    buffer.writeln('return transaction(() async {');
-    for (final column in toOneColumns) {
-      buffer.writeln(
-        'await instance.${column.fieldName}${column.nullable ? '?' : ''}.save();',
-      );
-    }
-
+    buffer.writeln('return batch((batch) {');
     buffer.writeln(
-      'await into(${orm.tableRecord.tableInstanceName}).insert(instance, mode: InsertMode.insertOrReplace);',
+      '${orm.tableRecord.tableInstanceName}.saveRow(batch, db.tableMap, instance);',
     );
 
     buffer.writeln('});');

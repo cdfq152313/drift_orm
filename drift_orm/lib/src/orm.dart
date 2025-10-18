@@ -25,6 +25,10 @@ class OrmTable<T> extends Table {
   T extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
     throw UnimplementedError();
   }
+
+  void saveRow(Batch batch, Map<String, OrmTable> tableMap, T instance) {
+    throw UnimplementedError();
+  }
 }
 
 mixin OrmDatabaseMixin on GeneratedDatabase {

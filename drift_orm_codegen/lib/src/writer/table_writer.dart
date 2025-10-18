@@ -11,6 +11,7 @@ ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
 ${generatePrimaryKey(orm)}
 ${generateBuildJoinInfo(orm)}
 ${generateExtractRow(orm)}
+${generateSaveRow(orm)}
 }""";
   }
 
@@ -165,6 +166,24 @@ ${generateExtractRow(orm)}
     final result = row.readTable(this as TableInfo) as ${orm.tableRecord.rowClassName};
     $joinsExtraction
     return result;
+  }
+''';
+  }
+
+  String generateSaveRow(OrmInfo orm) {
+    final toOneColumns = orm.fields.whereType<ToOneRecord>();
+    final joinsSave = toOneColumns.map((c) {
+      return '''
+    if (instance.${c.fieldName} != null) {
+      tableMap['${c.tableName}']!.saveRow(batch, tableMap, instance.${c.fieldName});
+    }''';
+    }).join();
+
+    return '''
+  @override
+  void saveRow(Batch batch, Map<String, OrmTable> tableMap, ${orm.tableRecord.rowClassName} instance) {
+    $joinsSave
+    batch.insert(this as TableInfo, instance, mode: InsertMode.insertOrReplace);
   }
 ''';
   }
