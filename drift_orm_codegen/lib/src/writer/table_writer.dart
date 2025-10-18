@@ -11,7 +11,7 @@ ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
 ${generatePrimaryKey(orm)}
 ${generateBuildJoinInfo(orm)}
 ${generateExtractRow(orm)}
-${generateSaveRow(orm)}
+${generateSaveRows(orm)}
 }""";
   }
 
@@ -170,20 +170,21 @@ ${generateSaveRow(orm)}
 ''';
   }
 
-  String generateSaveRow(OrmInfo orm) {
+  String generateSaveRows(OrmInfo orm) {
     final toOneColumns = orm.fields.whereType<ToOneRecord>();
     final joinsSave = toOneColumns.map((c) {
       return '''
-    if (instance.${c.fieldName} != null) {
-      tableMap['${c.tableName}']!.saveRow(batch, tableMap, instance.${c.fieldName});
+    final ${c.fieldName}s = instances.map((e) => e.${c.fieldName}).whereType<${c.type}>().toList();
+    if (${c.fieldName}s.isNotEmpty) {
+      tableMap['${c.tableName}']!.saveRows(batch, tableMap, ${c.fieldName}s);
     }''';
     }).join();
 
     return '''
   @override
-  void saveRow(Batch batch, Map<String, OrmTable> tableMap, ${orm.tableRecord.rowClassName} instance) {
+  void saveRows(Batch batch, Map<String, OrmTable> tableMap, List<${orm.tableRecord.rowClassName}> instances) {
     $joinsSave
-    batch.insert(this as TableInfo, instance, mode: InsertMode.insertOrReplace);
+    batch.insertAll(this as TableInfo, instances, mode: InsertMode.insertOrReplace);
   }
 ''';
   }

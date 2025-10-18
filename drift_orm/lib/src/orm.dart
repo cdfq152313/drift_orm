@@ -26,7 +26,7 @@ class OrmTable<T> extends Table {
     throw UnimplementedError();
   }
 
-  void saveRow(Batch batch, Map<String, OrmTable> tableMap, T instance) {
+  void saveRows(Batch batch, Map<String, OrmTable> tableMap, List<T> instance) {
     throw UnimplementedError();
   }
 }

@@ -21,12 +21,12 @@ class OrmDaoMixinWriter extends Writer {
 
   void _writeUpsert(OrmInfo orm, StringBuffer buffer) {
     buffer.writeln(
-      'Future upsert(${orm.tableRecord.rowClassName} instance) {',
+      'Future<void> upsert(${orm.tableRecord.rowClassName} instance) {',
     );
 
     buffer.writeln('return batch((batch) {');
     buffer.writeln(
-      '${orm.tableRecord.tableInstanceName}.saveRow(batch, db.tableMap, instance);',
+      '${orm.tableRecord.tableInstanceName}.saveRows(batch, db.tableMap, [instance]);',
     );
 
     buffer.writeln('});');
@@ -34,24 +34,17 @@ class OrmDaoMixinWriter extends Writer {
   }
 
   void _writeUpsertAll(OrmInfo orm, StringBuffer buffer) {
-    final toOneColumns = orm.fields.whereType<ToOneRecord>();
-
     buffer.writeln(
-      'Future upsertAll(List<${orm.tableRecord.rowClassName}> instances) async {',
-    );
-    for (final column in toOneColumns) {
-      final whereNotNull =
-          column.nullable ? '.whereType<${column.type}>()' : '';
-      buffer.writeln(
-        'await instances.map((instance) => instance.${column.fieldName})$whereNotNull.toList().saveAll();',
-      );
-    }
-
-    buffer.writeln(
-      'await batch((b) => b.insertAll(${orm.tableRecord.tableInstanceName}, instances, mode: InsertMode.insertOrReplace));',
+      'Future<void> upsertAll(List<${orm.tableRecord.rowClassName}> instances) {',
     );
 
-    buffer.write('}\n');
+    buffer.writeln('return batch((batch) {');
+    buffer.writeln(
+      '${orm.tableRecord.tableInstanceName}.saveRows(batch, db.tableMap, instances);',
+    );
+
+    buffer.writeln('});');
+    buffer.writeln('}');
   }
 
   void _writeLoadAll(OrmInfo orm, StringBuffer buffer) {
