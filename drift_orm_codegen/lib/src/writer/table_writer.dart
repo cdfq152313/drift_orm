@@ -6,10 +6,11 @@ class TableWriter extends Writer {
   String write(OrmInfo orm) {
     return """
 @UseRowClass(${orm.tableRecord.rowClassName})
-class ${orm.tableRecord.tableClassName} extends OrmTable {
+class ${orm.tableRecord.tableClassName} extends OrmTable<${orm.tableRecord.rowClassName}>{
 ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
-${generateBuildJoinInfo(orm)}
 ${generatePrimaryKey(orm)}
+${generateBuildJoinInfo(orm)}
+${generateExtractRow(orm)}
 }""";
   }
 
@@ -46,21 +47,6 @@ ${generatePrimaryKey(orm)}
         _tmplDefaultValue(col.annotation.defaultValue),
       ],
     );
-  }
-
-  String generateBuildJoinInfo(OrmInfo orm) {
-    final toOneColumns = orm.fields.whereType<ToOneRecord>();
-    final x = toOneColumns.map((c) {
-      return "${c.foreignIdFieldName}: tableMap['${c.tableName}']!";
-    }).join();
-    return '''
-  @override
-  Map<Column, OrmTable> buildJoinInfo(Map<String, OrmTable> tableMap) {
-    return {
-      $x
-    };
-  }
-    ''';
   }
 
   String generatePrimaryKey(OrmInfo orm) {
@@ -149,5 +135,37 @@ ${generatePrimaryKey(orm)}
 
   String _tmplForeignKey(ToOneRecord toOne) {
     return ".references(${toOne.type}s, #${toOne.annotation.refCol})";
+  }
+
+  String generateBuildJoinInfo(OrmInfo orm) {
+    final toOneColumns = orm.fields.whereType<ToOneRecord>();
+    final x = toOneColumns.map((c) {
+      return "${c.foreignIdFieldName}: tableMap['${c.tableName}']!";
+    }).join();
+    return '''
+  @override
+  Map<Column, OrmTable> buildJoinInfo(Map<String, OrmTable> tableMap) {
+    return {
+      $x
+    };
+  }
+    ''';
+  }
+
+  String generateExtractRow(OrmInfo orm) {
+    final toOneColumns = orm.fields.whereType<ToOneRecord>();
+    final joinsExtraction = toOneColumns.map((c) {
+      return '''
+    result.${c.fieldName} = tableMap['${c.tableName}']!.extractRow(tableMap, row);''';
+    }).join();
+
+    return '''
+  @override
+  ${orm.tableRecord.rowClassName} extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
+    final result = row.readTable(this as TableInfo) as ${orm.tableRecord.rowClassName};
+    $joinsExtraction
+    return result;
+  }
+''';
   }
 }

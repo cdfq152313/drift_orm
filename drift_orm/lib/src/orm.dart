@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 
 typedef WhereFilter<T extends Table> = Expression<bool> Function(T table);
 
-class OrmTable extends Table {
+class OrmTable<T> extends Table {
   List<Join> getJoins(Map<String, OrmTable> tableMap) {
     final joins = <Join>[];
     final joinInfo = buildJoinInfo(tableMap);
@@ -20,6 +20,10 @@ class OrmTable extends Table {
 
   Map<Column, OrmTable> buildJoinInfo(Map<String, OrmTable> tableMap) {
     return {};
+  }
+
+  T extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
+    throw UnimplementedError();
   }
 }
 
