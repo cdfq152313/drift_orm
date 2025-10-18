@@ -8,7 +8,6 @@ class OrmRowMixinWriter extends Writer {
 
     return """
 mixin _\$${orm.tableRecord.rowClassName}OrmRowMixin {
-  Future<void> save();
   ${toOneFields.expand((e) => generateForeignKeyField(e)).join('\n')}
 }
 """;

@@ -25,7 +25,7 @@ class AppDatabase extends _$AppDatabase with OrmDatabaseMixin {
 final database = AppDatabase(NativeDatabase.memory());
 void main(List<String> args) async {
   final origin = TodoOrm(id: "")..extraField = Extra(id: 1);
-  await origin.save();
+  await database.todoOrmsDao.upsert(origin);
   final data = await database.todoOrmsDao.loadAll();
   print(data);
 }
