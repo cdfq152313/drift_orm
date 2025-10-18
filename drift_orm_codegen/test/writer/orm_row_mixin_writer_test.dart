@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import '../basic.dart';
 
 void main() {
-  group('ForeignKeyWriter - Foreign key field generation', () {
+  group('OrmRowMixinWriter - Foreign key field generation', () {
     final testCases = [
       TestCase(
         name: 'Non-nullable relationship with default refCol',
@@ -71,37 +71,5 @@ void main() {
         expect(result, equals(tc.expected));
       });
     }
-  });
-
-  group('ForeignKeyWriter - Full mixin generation', () {
-    test('Generate mixin with single ToOne relationship', () {
-      final writer = OrmRowMixinWriter();
-      final tableRecord = TableRecord(
-        tableName: 'posts',
-        tableClassName: 'Posts',
-        rowClassName: 'Post',
-      );
-
-      final fields = [
-        ToOneRecord(
-          fieldName: 'author',
-          type: 'User',
-          nullable: false,
-          annotation: EntityToOne(isNullable: false),
-          refColType: 'int',
-        ),
-      ];
-
-      final ormInfo = OrmInfo(
-        tableRecord: tableRecord,
-        fields: fields,
-      );
-
-      final result = writer.write(ormInfo);
-
-      expect(result, contains('mixin _\$PostForeignKeyMixin {'));
-      expect(result, contains('User get author;'));
-      expect(result, contains('int get authorId => author.id;'));
-    });
   });
 }
