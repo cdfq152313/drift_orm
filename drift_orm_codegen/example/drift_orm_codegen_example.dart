@@ -22,9 +22,10 @@ class AppDatabase extends _$AppDatabase with OrmDatabaseMixin {
   int get schemaVersion => 1;
 }
 
+final database = AppDatabase(NativeDatabase.memory());
 void main(List<String> args) async {
-  final database = AppDatabase(NativeDatabase.memory());
-  await database.todoOrmsDao.upsert(TodoOrm(id: "")..extraField = Extra(id: 1));
+  final origin = TodoOrm(id: "")..extraField = Extra(id: 1);
+  await origin.save();
   final data = await database.todoOrmsDao.loadAll();
   print(data);
 }

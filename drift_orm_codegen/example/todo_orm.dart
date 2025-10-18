@@ -22,7 +22,7 @@ class TodoOrm with _$TodoOrmOrmRowMixin, $TodoOrmsTableToColumns {
 
   TodoOrm({required this.id});
 
-  Future<void> save() async {}
+  Future<void> save() async => database.todoOrmsDao.upsert(this);
 }
 
 @Entity()
@@ -34,7 +34,7 @@ class Extra with _$ExtraOrmRowMixin, $ExtrasTableToColumns {
   String? info;
   Extra({required this.id, this.info});
 
-  Future<void> save() async {}
+  Future<void> save() async => database.extrasDao.upsert(this);
 }
 
 class MyConverter extends TypeConverter<DateTime, int> {
