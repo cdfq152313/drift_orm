@@ -11,6 +11,9 @@ dependencies:
   # Drift
   drift:
   drift_orm:
+    git:
+      url: https://github.com/cdfq152313/drift_orm
+      path: drift_orm
   drift_dev:
 
   # lib
