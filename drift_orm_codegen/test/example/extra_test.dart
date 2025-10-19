@@ -43,6 +43,18 @@ void main() {
       assert(equal(result, extra));
     });
 
+    test('Extra loadAll where', () async {
+      final extras = [
+        Extra(id: 100, info: 'test info 1'),
+        Extra(id: 101, info: 'test info 2'),
+      ];
+      await database.extrasDao.upsertAll(extras);
+
+      final result = await database.extrasDao
+          .loadAll(where: (table) => table.id.equals(100));
+      assert(equal(result.first, extras.first));
+    });
+
     test('Extra upsertAll and loadAll', () async {
       final extras = [
         Extra(id: 101, info: 'info 1'),
