@@ -3,9 +3,9 @@ targets:
     builders:
       drift_orm_codegen:
         enabled: true
-      drift_dev:
-        options:
-          write_to_columns_mixins: true
+      # drift_dev:
+      #   options:
+      #     write_to_columns_mixins: true
 
 builders:
   drift_orm_codegen:
@@ -16,20 +16,20 @@ builders:
     build_to: source
 
   # copy paste from drift_dev
-  drift_dev:
-    import: "package:drift_dev/integrations/build.dart"
-    builder_factories: ["discover", "analyzer", "driftBuilder"]
-    build_extensions:
-      ".dart":
-        - ".drift.g.part"
-        - ".dart.drift_module.json"
-        - ".dart.types.temp.dart"
-        - ".dart.drift_elements.json"
-      ".drift":
-        - ".drift.drift_module.json"
-        - ".drift.types.temp.dart"
-        - ".drift.drift_elements.json"
-    auto_apply: dependents
-    build_to: cache
-    required_inputs: [".drift_prep.json", ".drift_orm.g.dart"]
-    applies_builders: ["source_gen:combining_builder", ":preparing_builder"]
+  # drift_dev:
+  #   import: "package:drift_dev/integrations/build.dart"
+  #   builder_factories: ["discover", "analyzer", "driftBuilder"]
+  #   build_extensions:
+  #     ".dart":
+  #       - ".drift.g.part"
+  #       - ".dart.drift_module.json"
+  #       - ".dart.types.temp.dart"
+  #       - ".dart.drift_elements.json"
+  #     ".drift":
+  #       - ".drift.drift_module.json"
+  #       - ".drift.types.temp.dart"
+  #       - ".drift.drift_elements.json"
+  #   auto_apply: dependents
+  #   build_to: cache
+  #   required_inputs: [".drift_prep.json", ".drift_orm.g.dart"]
+  #   applies_builders: ["source_gen:combining_builder", ":preparing_builder"]

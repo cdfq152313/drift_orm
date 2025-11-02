@@ -24,7 +24,7 @@ dependencies:
   build:
   build_config:
   dart_style:
-  source_gen:
+  source_gen: "<4.0.0"
 
 dev_dependencies:
   build_runner: ^2.4.0

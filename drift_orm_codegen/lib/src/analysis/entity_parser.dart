@@ -8,10 +8,10 @@ import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
 class EntityParser {
-  static const _primaryKeyChecker = TypeChecker.typeNamed(EntityPrimaryKey);
-  static const _toOneChecker = TypeChecker.typeNamed(EntityToOne);
-  static const _columnChecker = TypeChecker.typeNamed(EntityColumn);
-  static const _converterChecker = TypeChecker.typeNamed(TypeConverter);
+  static const _primaryKeyChecker = TypeChecker.fromRuntime(EntityPrimaryKey);
+  static const _toOneChecker = TypeChecker.fromRuntime(EntityToOne);
+  static const _columnChecker = TypeChecker.fromRuntime(EntityColumn);
+  static const _converterChecker = TypeChecker.fromRuntime(TypeConverter);
 
   /// Parse the entity class and extract annotation information
   OrmInfo parse(
