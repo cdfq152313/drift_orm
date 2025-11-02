@@ -142,7 +142,7 @@ ${generateSaveRows(orm)}
     final toOneColumns = orm.fields.whereType<ToOneRecord>();
     final x = toOneColumns.map((c) {
       return "${c.foreignIdFieldName}: tableMap['${c.tableName}']!";
-    }).join();
+    }).join(",");
     return '''
   @override
   Map<Column, OrmTable> buildJoinInfo(Map<String, OrmTable> tableMap) {
