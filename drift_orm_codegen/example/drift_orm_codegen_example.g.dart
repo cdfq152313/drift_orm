@@ -615,6 +615,7 @@ mixin $TodoOrmsTableToColumns implements Insertable<TodoOrm> {
   DateTime? get createdAt;
   bool? get isDone;
   int? get extraFieldId;
+  bool? get isDeleted;
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -628,6 +629,9 @@ mixin $TodoOrmsTableToColumns implements Insertable<TodoOrm> {
     }
     if (!nullToAbsent || extraFieldId != null) {
       map['extra_field_id'] = Variable<int>(extraFieldId);
+    }
+    if (!nullToAbsent || isDeleted != null) {
+      map['is_deleted'] = Variable<bool>(isDeleted);
     }
     return map;
   }
@@ -666,8 +670,19 @@ class $TodoOrmsTable extends TodoOrms with TableInfo<$TodoOrmsTable, TodoOrm> {
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES extras (id)'));
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
   @override
-  List<GeneratedColumn> get $columns => [id, createdAt, isDone, extraFieldId];
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: Constant(false));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, createdAt, isDone, extraFieldId, isDeleted];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -693,6 +708,10 @@ class $TodoOrmsTable extends TodoOrms with TableInfo<$TodoOrmsTable, TodoOrm> {
           extraFieldId.isAcceptableOrUnknown(
               data['extra_field_id']!, _extraFieldIdMeta));
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
     return context;
   }
 
@@ -709,6 +728,8 @@ class $TodoOrmsTable extends TodoOrms with TableInfo<$TodoOrmsTable, TodoOrm> {
           .read(DriftSqlType.int, data['${effectivePrefix}created_at'])),
       isDone: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_done']),
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted']),
     );
   }
 
@@ -727,12 +748,14 @@ class TodoOrmsCompanion extends UpdateCompanion<TodoOrm> {
   final Value<DateTime?> createdAt;
   final Value<bool?> isDone;
   final Value<int?> extraFieldId;
+  final Value<bool?> isDeleted;
   final Value<int> rowid;
   const TodoOrmsCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDone = const Value.absent(),
     this.extraFieldId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TodoOrmsCompanion.insert({
@@ -740,6 +763,7 @@ class TodoOrmsCompanion extends UpdateCompanion<TodoOrm> {
     this.createdAt = const Value.absent(),
     this.isDone = const Value.absent(),
     this.extraFieldId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id);
   static Insertable<TodoOrm> custom({
@@ -747,6 +771,7 @@ class TodoOrmsCompanion extends UpdateCompanion<TodoOrm> {
     Expression<int>? createdAt,
     Expression<bool>? isDone,
     Expression<int>? extraFieldId,
+    Expression<bool>? isDeleted,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -754,6 +779,7 @@ class TodoOrmsCompanion extends UpdateCompanion<TodoOrm> {
       if (createdAt != null) 'created_at': createdAt,
       if (isDone != null) 'is_done': isDone,
       if (extraFieldId != null) 'extra_field_id': extraFieldId,
+      if (isDeleted != null) 'is_deleted': isDeleted,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -763,12 +789,14 @@ class TodoOrmsCompanion extends UpdateCompanion<TodoOrm> {
       Value<DateTime?>? createdAt,
       Value<bool?>? isDone,
       Value<int?>? extraFieldId,
+      Value<bool?>? isDeleted,
       Value<int>? rowid}) {
     return TodoOrmsCompanion(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       isDone: isDone ?? this.isDone,
       extraFieldId: extraFieldId ?? this.extraFieldId,
+      isDeleted: isDeleted ?? this.isDeleted,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -789,6 +817,9 @@ class TodoOrmsCompanion extends UpdateCompanion<TodoOrm> {
     if (extraFieldId.present) {
       map['extra_field_id'] = Variable<int>(extraFieldId.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -802,6 +833,7 @@ class TodoOrmsCompanion extends UpdateCompanion<TodoOrm> {
           ..write('createdAt: $createdAt, ')
           ..write('isDone: $isDone, ')
           ..write('extraFieldId: $extraFieldId, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1338,6 +1370,7 @@ typedef $$TodoOrmsTableCreateCompanionBuilder = TodoOrmsCompanion Function({
   Value<DateTime?> createdAt,
   Value<bool?> isDone,
   Value<int?> extraFieldId,
+  Value<bool?> isDeleted,
   Value<int> rowid,
 });
 typedef $$TodoOrmsTableUpdateCompanionBuilder = TodoOrmsCompanion Function({
@@ -1345,6 +1378,7 @@ typedef $$TodoOrmsTableUpdateCompanionBuilder = TodoOrmsCompanion Function({
   Value<DateTime?> createdAt,
   Value<bool?> isDone,
   Value<int?> extraFieldId,
+  Value<bool?> isDeleted,
   Value<int> rowid,
 });
 
@@ -1388,6 +1422,9 @@ class $$TodoOrmsTableFilterComposer
   ColumnFilters<bool> get isDone => $composableBuilder(
       column: $table.isDone, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
   $$ExtrasTableFilterComposer get extraFieldId {
     final $$ExtrasTableFilterComposer composer = $composerBuilder(
         composer: this,
@@ -1427,6 +1464,9 @@ class $$TodoOrmsTableOrderingComposer
   ColumnOrderings<bool> get isDone => $composableBuilder(
       column: $table.isDone, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+
   $$ExtrasTableOrderingComposer get extraFieldId {
     final $$ExtrasTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -1465,6 +1505,9 @@ class $$TodoOrmsTableAnnotationComposer
 
   GeneratedColumn<bool> get isDone =>
       $composableBuilder(column: $table.isDone, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
   $$ExtrasTableAnnotationComposer get extraFieldId {
     final $$ExtrasTableAnnotationComposer composer = $composerBuilder(
@@ -1514,6 +1557,7 @@ class $$TodoOrmsTableTableManager extends RootTableManager<
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDone = const Value.absent(),
             Value<int?> extraFieldId = const Value.absent(),
+            Value<bool?> isDeleted = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TodoOrmsCompanion(
@@ -1521,6 +1565,7 @@ class $$TodoOrmsTableTableManager extends RootTableManager<
             createdAt: createdAt,
             isDone: isDone,
             extraFieldId: extraFieldId,
+            isDeleted: isDeleted,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -1528,6 +1573,7 @@ class $$TodoOrmsTableTableManager extends RootTableManager<
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDone = const Value.absent(),
             Value<int?> extraFieldId = const Value.absent(),
+            Value<bool?> isDeleted = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TodoOrmsCompanion.insert(
@@ -1535,6 +1581,7 @@ class $$TodoOrmsTableTableManager extends RootTableManager<
             createdAt: createdAt,
             isDone: isDone,
             extraFieldId: extraFieldId,
+            isDeleted: isDeleted,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

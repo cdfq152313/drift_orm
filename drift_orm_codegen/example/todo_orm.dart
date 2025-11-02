@@ -6,8 +6,14 @@ import 'drift_orm_codegen_example.dart';
 part 'todo_orm.drift_orm.g.dart';
 part 'todo_orm.g.dart';
 
+mixin DeletedColumnMixin {
+  @EntityColumn(defaultValue: false)
+  bool isDeleted = false;
+}
+
 @Entity()
-class TodoOrm with _$TodoOrmOrmRowMixin, $TodoOrmsTableToColumns {
+class TodoOrm
+    with _$TodoOrmOrmRowMixin, $TodoOrmsTableToColumns, DeletedColumnMixin {
   @EntityPrimaryKey()
   String id;
 
@@ -25,7 +31,10 @@ class TodoOrm with _$TodoOrmOrmRowMixin, $TodoOrmsTableToColumns {
     this.createdAt,
     bool? isDone,
     this.extraField,
-  }) : isDone = isDone ?? false;
+    bool? isDeleted,
+  }) : isDone = isDone ?? false {
+    this.isDeleted = isDeleted ?? false;
+  }
 }
 
 @Entity()

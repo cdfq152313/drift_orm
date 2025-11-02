@@ -1,5 +1,5 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format width=80
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'todo_orm.dart';
 
@@ -13,6 +13,7 @@ class TodoOrms extends OrmTable<TodoOrm> {
   late final createdAt = integer().map(const MyConverter()).nullable()();
   late final isDone = boolean().nullable().withDefault(Constant(false))();
   late final extraFieldId = integer().references(Extras, #id).nullable()();
+  late final isDeleted = boolean().nullable().withDefault(Constant(false))();
   @override
   Set<Column<Object>> get primaryKey => {id};
 
