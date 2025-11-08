@@ -140,11 +140,21 @@ extension DartTypeExtension on DartType {
 
 extension InterfaceElementExtension on InterfaceElement {
   List<FieldElement> get allFields {
-    return [
+    final allFields = [
       ...fields,
       for (final type in allSupertypes)
         if (type.element is MixinElement || type.element is ClassElement)
-          ...type.element.fields,
+          ...type.element.fields
     ];
+
+    final fieldsSet = <String>{};
+    final result = <FieldElement>[];
+    // Only keep the first occurrence of each field name
+    for (final field in allFields) {
+      if (fieldsSet.add(field.name)) {
+        result.add(field);
+      }
+    }
+    return result;
   }
 }
