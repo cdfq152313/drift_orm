@@ -21,10 +21,7 @@ class EntityParser {
     final tableRecord = _parseTable(element);
     final fields = <FieldRecord>[];
 
-    // Get all fields including those from mixins and superclasses
-    final allFields = _getAllFields(element);
-
-    for (final field in allFields) {
+    for (final field in element.allFields) {
       // Skip static fields and synthetic fields
       if (field.isStatic) continue;
 
@@ -90,40 +87,6 @@ class EntityParser {
     return OrmInfo(tableRecord: tableRecord, fields: fields);
   }
 
-  /// Get all fields from the class including those from mixins and superclasses
-  List<FieldElement> _getAllFields(ClassElement element) {
-    final allFields = <String, FieldElement>{};
-
-    // Add fields from the class itself
-    for (final field in element.fields) {
-      final fieldName = field.name;
-      if (fieldName != null) {
-        allFields[fieldName] = field;
-      }
-    }
-
-    // Add fields from mixins and superclasses
-    for (final type in element.allSupertypes) {
-      if (type.element is MixinElement || type.element is ClassElement) {
-        final classElement = type.element;
-        // Skip Object class
-        if (classElement.name == 'Object') continue;
-
-        for (final field in classElement.fields) {
-          final fieldName = field.name;
-          if (fieldName != null) {
-            // Only add if not already present (class fields override mixin fields)
-            if (!allFields.containsKey(fieldName)) {
-              allFields[fieldName] = field;
-            }
-          }
-        }
-      }
-    }
-
-    return allFields.values.toList();
-  }
-
   TableRecord _parseTable(ClassElement element) {
     final rowClassName = element.name!;
     final recase = ReCase(rowClassName);
@@ -164,7 +127,7 @@ class EntityParser {
     if (type is! InterfaceType) {
       throw Exception('Unsupported reference type: ${type.getDisplayString()}');
     }
-    final field = type.element.fields.firstWhere((f) => f.name == refCol);
+    final field = type.element.allFields.firstWhere((f) => f.name == refCol);
     return field.type.getDisplayString();
   }
 }
@@ -173,4 +136,15 @@ extension DartTypeExtension on DartType {
   String nonNullableType() =>
       (element?.library?.typeSystem.promoteToNonNull(this) ?? this)
           .getDisplayString();
+}
+
+extension InterfaceElementExtension on InterfaceElement {
+  List<FieldElement> get allFields {
+    return [
+      ...fields,
+      for (final type in allSupertypes)
+        if (type.element is MixinElement || type.element is ClassElement)
+          ...type.element.fields,
+    ];
+  }
 }
