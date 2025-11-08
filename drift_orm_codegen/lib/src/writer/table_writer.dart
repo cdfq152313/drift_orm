@@ -56,7 +56,8 @@ ${generateSaveRows(orm)}
       return '';
     }
     if (pks.length > 1) {
-      throw Exception('Composite primary keys are not supported yet. (Found ${pks.map((pk) => pk.fieldName).join(", ")})');
+      throw Exception(
+          'Composite primary keys are not supported yet. (Found ${pks.map((pk) => pk.fieldName).join(", ")})');
     }
     final pk = pks.first;
     return """

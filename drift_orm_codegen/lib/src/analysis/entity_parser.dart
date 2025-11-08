@@ -142,14 +142,14 @@ extension InterfaceElementExtension on InterfaceElement {
   List<FieldElement> get allFields {
     final allFields = [
       ...fields,
-      for (final type in allSupertypes)
+      for (final type in allSupertypes.reversed)
         if (type.element is MixinElement || type.element is ClassElement)
           ...type.element.fields
     ];
 
     final fieldsSet = <String>{};
     final result = <FieldElement>[];
-    // Only keep the first occurrence of each field name
+    // Follow inheritance chain to avoid duplicate fields
     for (final field in allFields) {
       if (fieldsSet.add(field.name)) {
         result.add(field);
