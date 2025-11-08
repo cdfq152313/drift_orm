@@ -51,7 +51,14 @@ ${generateSaveRows(orm)}
   }
 
   String generatePrimaryKey(OrmInfo orm) {
-    final pk = orm.fields.whereType<PrimaryKeyRecord>().first;
+    final pks = orm.fields.whereType<PrimaryKeyRecord>().toList();
+    if (pks.isEmpty) {
+      return '';
+    }
+    if (pks.length > 1) {
+      throw Exception('Composite primary keys are not supported yet.');
+    }
+    final pk = pks.first;
     return """
   @override
   Set<Column<Object>> get primaryKey => {${pk.fieldName}};
