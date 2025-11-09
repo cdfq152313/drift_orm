@@ -91,7 +91,7 @@ ${generateSaveRows(orm)}
       case 'double':
         return 'real()';
       case 'DateTime':
-        return 'datetime()';
+        return 'dateTime()';
       case 'Uint8List':
         return 'blob()';
       default:

@@ -89,7 +89,7 @@ void main() {
           converter: null,
         ),
         expected:
-            "late final name = datetime().named('created_at').nullable()();",
+            "late final name = dateTime().named('created_at').nullable()();",
       ),
       TestCase(
         name: 'Column with converter',
