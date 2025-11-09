@@ -1,11 +1,11 @@
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
+import 'package:drift_orm_codegen/src/options.dart';
 import 'package:drift_orm_codegen/src/writer/writer.dart';
 
 class OrmRowMixinWriter extends Writer {
   @override
-  String write(OrmInfo orm) {
+  String write(OrmInfo orm, Options options) {
     final toOneFields = orm.fields.whereType<ToOneRecord>();
-
     return """
 mixin _\$${orm.tableRecord.rowClassName}OrmRowMixin {
   ${toOneFields.expand((e) => generateForeignKeyField(e)).join('\n')}

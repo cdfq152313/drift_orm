@@ -5,12 +5,15 @@ import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_parser.dart';
-import 'package:drift_orm_codegen/src/writer/orm_row_mixin_writer.dart';
+import 'package:drift_orm_codegen/src/options.dart';
 import 'package:drift_orm_codegen/src/writer/orm_dao_mixin_writer.dart';
+import 'package:drift_orm_codegen/src/writer/orm_row_mixin_writer.dart';
 import 'package:drift_orm_codegen/src/writer/table_writer.dart';
 import 'package:source_gen/source_gen.dart';
 
 class EntityGenerator extends GeneratorForAnnotation<Entity> {
+  EntityGenerator(this.options);
+
   final EntityParser _parser = EntityParser();
   final _dartfmt = DartFormatter(
     languageVersion: DartFormatter.latestLanguageVersion,
@@ -20,6 +23,8 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
     OrmRowMixinWriter(),
     OrmDaoMixinWriter(),
   ];
+
+  final Options options;
 
   @override
   FutureOr<String> generateForAnnotatedElement(
@@ -36,7 +41,7 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
 
     final entityInfo = _parser.parse(element, annotation);
     final result =
-        _writers.map((writer) => writer.write(entityInfo)).join('\n');
+        _writers.map((writer) => writer.write(entityInfo, options)).join('\n');
     return _dartfmt.format(result);
   }
 }

@@ -1,12 +1,14 @@
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
+import 'package:drift_orm_codegen/src/options.dart';
 import 'package:drift_orm_codegen/src/writer/writer.dart';
 
 class OrmDaoMixinWriter extends Writer {
   @override
-  String write(OrmInfo orm) {
+  String write(OrmInfo orm, Options options) {
     final buffer = StringBuffer();
+    final daoMixinPrefix = options.modular ? '' : '_';
     buffer.writeln(
-      "mixin _\$${orm.tableRecord.tableClassName}OrmMixin on _\$${orm.tableRecord.tableClassName}DaoMixin {",
+      "mixin _\$${orm.tableRecord.tableClassName}OrmMixin on $daoMixinPrefix\$${orm.tableRecord.tableClassName}DaoMixin {",
     );
 
     _writeUpsert(orm, buffer);

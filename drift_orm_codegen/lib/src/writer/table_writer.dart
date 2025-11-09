@@ -1,9 +1,10 @@
 import 'package:drift_orm_codegen/src/analysis/entity_record.dart';
+import 'package:drift_orm_codegen/src/options.dart';
 import 'package:drift_orm_codegen/src/writer/writer.dart';
 
 class TableWriter extends Writer {
   @override
-  String write(OrmInfo orm) {
+  String write(OrmInfo orm, Options options) {
     return """
 @UseRowClass(${orm.tableRecord.rowClassName})
 class ${orm.tableRecord.tableClassName} extends OrmTable<${orm.tableRecord.rowClassName}>{
