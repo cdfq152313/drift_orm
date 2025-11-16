@@ -20,6 +20,8 @@ class EntityParser {
   ) {
     final tableRecord = _parseTable(element);
     final fields = <FieldRecord>[];
+    // Use the first available occurrence of each field name
+    final usedFields = <String>{};
 
     for (final field in element.allFields) {
       // Skip static fields and synthetic fields
@@ -27,7 +29,7 @@ class EntityParser {
 
       // Check for EntityPrimaryKey annotation
       final primaryKeyAnnotation = _primaryKeyChecker.firstAnnotationOf(field);
-      if (primaryKeyAnnotation != null) {
+      if (primaryKeyAnnotation != null && usedFields.add(field.name)) {
         final reader = ConstantReader(primaryKeyAnnotation);
         fields.add(PrimaryKeyRecord(
           fieldName: field.name!,
@@ -41,7 +43,7 @@ class EntityParser {
       }
 
       final columnAnnotation = _columnChecker.firstAnnotationOf(field);
-      if (columnAnnotation != null) {
+      if (columnAnnotation != null && usedFields.add(field.name)) {
         final reader = ConstantReader(columnAnnotation);
         fields.add(
           ColumnRecord(
@@ -61,7 +63,7 @@ class EntityParser {
       }
 
       final toOneAnnotation = _toOneChecker.firstAnnotationOf(field);
-      if (toOneAnnotation != null) {
+      if (toOneAnnotation != null && usedFields.add(field.name)) {
         final reader = ConstantReader(toOneAnnotation);
         fields.add(
           ToOneRecord(
@@ -140,21 +142,12 @@ extension DartTypeExtension on DartType {
 
 extension InterfaceElementExtension on InterfaceElement {
   List<FieldElement> get allFields {
-    final allFields = [
+    return [
       ...fields,
+      // Follow inheritance chain to avoid duplicate fields
       for (final type in allSupertypes.reversed)
         if (type.element is MixinElement || type.element is ClassElement)
           ...type.element.fields
     ];
-
-    final fieldsSet = <String>{};
-    final result = <FieldElement>[];
-    // Follow inheritance chain to avoid duplicate fields
-    for (final field in allFields) {
-      if (fieldsSet.add(field.name)) {
-        result.add(field);
-      }
-    }
-    return result;
   }
 }
