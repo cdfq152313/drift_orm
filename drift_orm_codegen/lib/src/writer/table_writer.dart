@@ -47,6 +47,7 @@ ${generateSaveRows(orm)}
         _tmplAuto(col.annotation.auto),
         _tmplNullable(col.annotation.isNullable),
         _tmplDefaultValue(col.annotation.defaultValue),
+        _tmplClientDefault(col.annotation.clientDefault),
       ],
     );
   }
@@ -139,7 +140,25 @@ ${generateSaveRows(orm)}
         return ".withDefault(Constant($defaultValue))";
       default:
         throw Exception(
-            'Unsupported default value type: ${defaultValue.runtimeType}');
+          'Unsupported default value type: ${defaultValue.runtimeType}',
+        );
+    }
+  }
+
+  String _tmplClientDefault(Object? clientDefault) {
+    switch (clientDefault) {
+      case null:
+        return '';
+      case String _:
+        return ".clientDefault(() => '$clientDefault')";
+      case int _:
+      case double _:
+      case bool _:
+        return ".clientDefault(() => $clientDefault)";
+      default:
+        throw Exception(
+          'Unsupported default value type: ${clientDefault.runtimeType}',
+        );
     }
   }
 

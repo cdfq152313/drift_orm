@@ -26,6 +26,7 @@ class EntityColumn implements EntityColumnBase {
   final Type? converter;
 
   final Object? defaultValue;
+  final Object? clientDefault;
 
   const EntityColumn({
     this.name,
@@ -33,6 +34,7 @@ class EntityColumn implements EntityColumnBase {
     this.auto = false,
     this.converter,
     this.defaultValue,
+    this.clientDefault,
   });
 }
 

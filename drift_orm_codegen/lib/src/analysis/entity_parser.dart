@@ -54,6 +54,7 @@ class EntityParser {
               isNullable: reader.peek('isNullable')!.boolValue,
               auto: reader.peek('auto')!.boolValue,
               defaultValue: _parseDefaultValue(reader.peek('defaultValue')),
+              clientDefault: _parseDefaultValue(reader.peek('clientDefault')),
             ),
             converterRecord:
                 _tryParseConverter(reader.peek('converter')?.typeValue),
