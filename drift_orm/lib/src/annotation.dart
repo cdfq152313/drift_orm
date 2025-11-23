@@ -2,7 +2,8 @@ import 'package:meta/meta_meta.dart';
 
 @Target({TargetKind.classType})
 class Entity {
-  const Entity();
+  const Entity({this.constructor});
+  final String? constructor;
 }
 
 abstract class EntityColumnBase {
