@@ -18,7 +18,7 @@ class EntityParser {
     ClassElement element,
     ConstantReader entityAnnotation,
   ) {
-    final tableRecord = _parseTable(element);
+    final tableRecord = _parseTable(element, entityAnnotation);
     final fields = <FieldRecord>[];
     // Use the first available occurrence of each field name
     final usedFields = <String>{};
@@ -49,6 +49,8 @@ class EntityParser {
           ColumnRecord(
             fieldName: field.name!,
             type: field.type.nonNullableType(),
+            nullable:
+                field.type.nullabilitySuffix == NullabilitySuffix.question,
             annotation: EntityColumn(
               name: reader.peek('name')?.stringValue,
               isNullable: reader.peek('isNullable')!.boolValue,
@@ -90,7 +92,10 @@ class EntityParser {
     return OrmInfo(tableRecord: tableRecord, fields: fields);
   }
 
-  TableRecord _parseTable(ClassElement element) {
+  TableRecord _parseTable(
+    ClassElement element,
+    ConstantReader entityAnnotation,
+  ) {
     final rowClassName = element.name!;
     final recase = ReCase(rowClassName);
     final tableClassName = "${rowClassName}s";
@@ -99,6 +104,7 @@ class EntityParser {
       tableName: tableName,
       tableClassName: tableClassName,
       rowClassName: rowClassName,
+      constructor: entityAnnotation.peek("constructor")?.stringValue,
     );
   }
 

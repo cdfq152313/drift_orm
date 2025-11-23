@@ -34,9 +34,11 @@ class ColumnRecord extends FieldRecord {
     required super.type,
     required this.annotation,
     required this.converterRecord,
+    required this.nullable,
   });
   final EntityColumn annotation;
   final ConverterRecord? converterRecord;
+  final bool nullable; // type nullable (not db column)
 }
 
 class ToOneRecord extends FieldRecord {
@@ -52,7 +54,7 @@ class ToOneRecord extends FieldRecord {
   final String refColType;
   final String tableInstanceName;
   final String tableName;
-  final bool nullable;
+  final bool nullable; // type nullable (not db column)
 
   String get foreignIdFieldName => '${fieldName}Id';
 }
@@ -62,11 +64,13 @@ class TableRecord {
   final String tableClassName;
   final String tableInstanceName;
   final String rowClassName;
+  final String? constructor;
 
   TableRecord({
     required this.tableName,
     required this.tableClassName,
     required this.rowClassName,
+    required this.constructor,
   }) : tableInstanceName = ReCase(tableClassName).camelCase;
 }
 

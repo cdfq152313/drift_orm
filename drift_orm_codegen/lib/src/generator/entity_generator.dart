@@ -6,6 +6,7 @@ import 'package:dart_style/dart_style.dart';
 import 'package:drift_orm/drift_orm.dart';
 import 'package:drift_orm_codegen/src/analysis/entity_parser.dart';
 import 'package:drift_orm_codegen/src/options.dart';
+import 'package:drift_orm_codegen/src/writer/db_instance_init_writer.dart';
 import 'package:drift_orm_codegen/src/writer/orm_dao_mixin_writer.dart';
 import 'package:drift_orm_codegen/src/writer/orm_row_mixin_writer.dart';
 import 'package:drift_orm_codegen/src/writer/table_writer.dart';
@@ -22,6 +23,7 @@ class EntityGenerator extends GeneratorForAnnotation<Entity> {
     TableWriter(),
     OrmRowMixinWriter(),
     OrmDaoMixinWriter(),
+    DbInstanceInitWriter(),
   ];
 
   final Options options;

@@ -6,7 +6,7 @@ class TableWriter extends Writer {
   @override
   String write(OrmInfo orm, Options options) {
     return """
-@UseRowClass(${orm.tableRecord.rowClassName})
+${generateRowClass(orm.tableRecord)}
 class ${orm.tableRecord.tableClassName} extends OrmTable<${orm.tableRecord.rowClassName}>{
 ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
 ${generatePrimaryKey(orm)}
@@ -14,6 +14,10 @@ ${generateBuildJoinInfo(orm)}
 ${generateExtractRow(orm)}
 ${generateSaveRows(orm)}
 }""";
+  }
+
+  String generateRowClass(TableRecord table) {
+    return "@UseRowClass(${table.rowClassName}${table.constructor != null ? ', constructor: "${table.constructor}"' : ''})";
   }
 
   String generateFieldRow(FieldRecord field) {
