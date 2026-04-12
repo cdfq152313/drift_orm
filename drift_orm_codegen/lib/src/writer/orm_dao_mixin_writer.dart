@@ -65,7 +65,7 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write('}\n');
 
     buffer.write(
-        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins(db.tableMap);\n');
+        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins(this, "", db.tableMap);\n');
 
     buffer.write('if (joins.isEmpty) {\n');
     buffer.write('if (limit != null) {\n');
@@ -73,13 +73,13 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write('}\n');
     buffer.write('return statement.get();\n');
     buffer.write('} else {\n');
-    buffer.write('final joinedStatement = statement.join(joins);\n');
+    buffer.write('final joinedStatement = statement.join(joins.allJoins);\n');
     buffer.write('if (limit != null) {\n');
     buffer.write('joinedStatement.limit(limit, offset: offset);\n');
     buffer.write('}\n');
     buffer.write('return joinedStatement.get().then((rows) {\n');
     buffer.write(
-        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(db.tableMap, row)!).toList();\n');
+        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(joins, row)!).toList();\n');
     buffer.write('});\n');
     buffer.write('}\n');
 
@@ -94,12 +94,12 @@ class OrmDaoMixinWriter extends Writer {
     buffer.write(
         'statement.where((table) => table.primaryKey.first.equals(key));\n');
     buffer.write(
-        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins(db.tableMap);\n');
+        'final joins = ${orm.tableRecord.tableInstanceName}.getJoins(this, "", db.tableMap);\n');
     buffer.write('final list = await (joins.isEmpty\n');
     buffer.write('? statement.get()\n');
-    buffer.write(': statement.join(joins).get().then((rows) {\n');
+    buffer.write(': statement.join(joins.allJoins).get().then((rows) {\n');
     buffer.write(
-        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(db.tableMap, row)!).toList();\n');
+        'return rows.map((row) => ${orm.tableRecord.tableInstanceName}.extractRow(joins, row)!).toList();\n');
     buffer.write('}));\n');
     buffer.write('return list.isNotEmpty ? list.first : null;\n');
     buffer.write('}\n');

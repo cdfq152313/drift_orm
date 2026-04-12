@@ -3,31 +3,45 @@ import 'package:drift/drift.dart';
 typedef WhereFilter<T extends Table> = Expression<bool> Function(T table);
 
 class OrmTable<T> extends Table {
-  List<Join> getJoins(Map<String, OrmTable> tableMap) {
-    final joins = <Join>[];
-    final joinInfo = buildJoinInfo(tableMap);
-
-    joins.addAll(joinInfo.entries.map((entry) {
-      final column = entry.key;
-      final table = entry.value;
-      return leftOuterJoin(table, column.equalsExp(table.primaryKey!.first));
-    }));
-
-    joins.addAll(joinInfo.values.expand((table) => table.getJoins(tableMap)));
-
-    return joins;
+  List<JoinPart> getJoins(
+    DatabaseConnectionUser accessor,
+    String prefix,
+    Map<String, OrmTable> tableMap,
+  ) {
+    return [];
   }
 
-  Map<Column, OrmTable> buildJoinInfo(Map<String, OrmTable> tableMap) {
-    return {};
-  }
-
-  T? extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
+  T? extractRow(List<JoinPart> joinParts, TypedResult row) {
     throw UnimplementedError();
   }
 
   void saveRows(Batch batch, Map<String, OrmTable> tableMap, List<T> instance) {
     throw UnimplementedError();
+  }
+}
+
+class JoinPart {
+  final String columnName;
+  final Table aliasTable;
+  final Join join;
+  final List<JoinPart> children;
+  JoinPart(this.columnName, this.aliasTable, this.join, this.children);
+
+  void _addJoins(List<Join> joins) {
+    joins.add(join);
+    for (final child in children) {
+      child._addJoins(joins);
+    }
+  }
+}
+
+extension AllJoinParts on List<JoinPart> {
+  List<Join> get allJoins {
+    final joins = <Join>[];
+    for (final part in this) {
+      part._addJoins(joins);
+    }
+    return joins;
   }
 }
 

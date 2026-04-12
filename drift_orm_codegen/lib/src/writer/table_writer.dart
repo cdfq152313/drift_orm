@@ -10,7 +10,7 @@ ${generateRowClass(orm.tableRecord)}
 class ${orm.tableRecord.tableClassName} extends OrmTable<${orm.tableRecord.rowClassName}>{
 ${orm.fields.map((e) => generateFieldRow(e)).join('\n')}
 ${generatePrimaryKey(orm)}
-${generateBuildJoinInfo(orm)}
+${generateGetJoins(orm)}
 ${generateExtractRow(orm)}
 ${generateSaveRows(orm)}
 }""";
@@ -170,31 +170,45 @@ ${generateSaveRows(orm)}
     return ".references(${toOne.type}s, #${toOne.annotation.refCol})";
   }
 
-  String generateBuildJoinInfo(OrmInfo orm) {
+  String generateGetJoins(OrmInfo orm) {
     final toOneColumns = orm.fields.whereType<ToOneRecord>();
-    final x = toOneColumns.map((c) {
-      return "${c.foreignIdFieldName}: tableMap['${c.tableName}']!";
-    }).join(",");
+    final joins = toOneColumns.map((c) {
+      final aliasTableVariable = '${c.fieldName}Alias';
+      return """
+    final $aliasTableVariable = accessor.alias(tableMap['${c.tableName}'] as \$${c.type}sTable, '\${prefix}_${c.foreignIdFieldName}');
+    joins.add(JoinPart(
+      '${c.foreignIdFieldName}',
+      $aliasTableVariable,
+      leftOuterJoin($aliasTableVariable, $aliasTableVariable.id.equalsExp(${c.foreignIdFieldName})),
+      [...$aliasTableVariable.getJoins(accessor, $aliasTableVariable.aliasedName, tableMap)],
+    ));
+    """;
+    }).join("\n\n");
     return '''
-  @override
-  Map<Column, OrmTable> buildJoinInfo(Map<String, OrmTable> tableMap) {
-    return {
-      $x
-    };
+@override
+List<JoinPart> getJoins(
+    DatabaseConnectionUser accessor,
+    String prefix,
+    Map<String, OrmTable> tableMap,
+  ) {
+    final joins = <JoinPart>[];
+    $joins
+    return joins;
   }
-    ''';
+''';
   }
 
   String generateExtractRow(OrmInfo orm) {
     final toOneColumns = orm.fields.whereType<ToOneRecord>();
     final joinsExtraction = toOneColumns.map((c) {
       return '''
-    result.${c.fieldName} = tableMap['${c.tableName}']!.extractRow(tableMap, row);''';
+    final ${c.fieldName}Join = joinParts.firstWhere((join) => join.columnName == '${c.foreignIdFieldName}');
+    result.${c.fieldName} = (${c.fieldName}Join.aliasTable as ${c.type}s).extractRow(${c.fieldName}Join.children, row)${c.nullable ? '' : '!'};''';
     }).join();
 
     return '''
   @override
-  ${orm.tableRecord.rowClassName}? extractRow(Map<String, OrmTable> tableMap, TypedResult row) {
+  ${orm.tableRecord.rowClassName}? extractRow(List<JoinPart> joinParts, TypedResult row) {
     final result = row.readTableOrNull(this as TableInfo) as ${orm.tableRecord.rowClassName}?;
     if (result == null) {
       return null;
