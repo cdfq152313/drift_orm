@@ -179,7 +179,7 @@ ${generateSaveRows(orm)}
     joins.add(JoinPart(
       '${c.foreignIdFieldName}',
       $aliasTableVariable,
-      leftOuterJoin($aliasTableVariable, $aliasTableVariable.id.equalsExp(${c.foreignIdFieldName})),
+      leftOuterJoin($aliasTableVariable, $aliasTableVariable.${c.annotation.refCol}.equalsExp(${c.foreignIdFieldName})),
       [...$aliasTableVariable.getJoins(accessor, $aliasTableVariable.aliasedName, tableMap)],
     ));
     """;
